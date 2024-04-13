@@ -22,7 +22,7 @@ int validateStaffLogin(char *staffID[], char* staffPassword[]) {
 	fread(&tempStaff, sizeof(struct StaffObject), 1, filep);
 	fclose(filep);
 
-	if (strcmp(tempStaff.password, staffPassword) == 0) {
+	if (strcmp(tempStaff.staffPassword, staffPassword) == 0) {
 		return(0); // Return 0 for successful login
 	}
 	else {
