@@ -151,6 +151,8 @@ static int file_count = 0;
 //	return current_file;
 //}
 
+
+//testing push for wx
 void manageTrain() {
 
 	int selection;
