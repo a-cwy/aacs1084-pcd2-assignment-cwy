@@ -44,5 +44,8 @@
     <ClInclude Include="StaffInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TrainSchedule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -79,6 +79,18 @@ bool validateStaffID(const char* staffID) {
 	return(true);
 }
 
+bool validateTrainID(const char* trainID) {
+	if (strlen(trainID) < 5) return(false);
+	if (trainID[0] != 'T') return(false);
+
+	for (int i = 1; i < 5; i++)
+	{
+		if (!isdigit(trainID[i])) return(false);
+	}
+
+	return(true);
+}
+
 bool validateIC(const char* IC) {
 	if (strlen(IC) < 14) return(false);
 
@@ -144,4 +156,10 @@ bool validateEmail(const char* email) {
 
 bool validateEmploymentType(const char* employmentType) {
 	return(strcmp(employmentType, "FT") == 0 || strcmp(employmentType, "PT") == 0);
+}
+
+bool validateTime(const int* hours, const int* minutes) {
+	if (hours < 0 || hours > 23) return(false);
+	if (minutes < 0 || minutes > 59) return(false);
+	return(true);
 }

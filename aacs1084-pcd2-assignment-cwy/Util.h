@@ -16,6 +16,9 @@ int handleLogin(char loginType);
 // StaffID follows format S1234
 bool validateStaffID(const char* staffID);
 
+// TrainID follows format T1234
+bool validateTrainID(const char* trainID);
+
 // IC number follows format 123456-12-1234
 bool validateIC(const char* IC);
 
@@ -33,3 +36,6 @@ bool validateEmploymentType(const char* employmentType);
 
 // Email follows format abc@email.com
 bool validateEmail(const char* email);
+
+// Time follows 24h format
+bool validateTime(const int* hours, const int* minutes);

@@ -1,205 +1,155 @@
+#include "Util.h"
+#include "TrainSchedule.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
-#include <Windows.h>
 
 #pragma warning (disable:4996)
-//Cannot search for ID in file to compare
-
 
 #define MAX_FILENAME_LEN 20
 #define MAX_ID_LEN 6 
 
-typedef struct Seat {
-	int row; //12
-	int col; //3
-	bool isAvailable;
-}Seat;
-
-typedef struct Coach {
-	char coachID; //C
-	Seat seats[80];
-	//populate with for loops, col1-20 and row1-4
-}Coach;
-
-typedef struct Time {//24h format
-	int hours;
-	int minutes;
-}Time;
-
-typedef struct Train {
-	char trainID[6]; //T1001
-	Coach coach[6];
-	//6coaches per Train
-	//ticket id follow train , coach,  seat row, seat col
-	// ex. T1006-C-12-3
-	char departureStation[40];
-	char arrivalStation[40];
-	Time departureTime;
-	Time arrivalTime;
-}Train;
-
 static int file_count = 0;
 
+//void trainSchedulingModule() {
+//	int selection;
+//	bool isAdmin;
+//
+//	while (1) {
+//		printf("1: Admin\n");
+//		printf("2: Staff\n");
+//		printf("> ");
+//		scanf("%d", &selection);
+//
+//		if (selection == 1) {
+//			isAdmin = true;
+//			adminMenu();
+//			break; // Exit the loop after a valid selection
+//		}
+//		else if (selection == 2) {
+//			isAdmin = false;
+//			staffMenu();
+//			break; // Exit the loop after a valid selection
+//		}
+//		else {
+//			printf("Invalid input, please try again\n");
+//		}
+//	}
+//	system("pause");
+//}
 
-FILE* create_train_file(char* id_to_check);
+//void adminMenu() {
+//
+//	int choice;
+//
+//	printf("Welcome to train scheduling module");
+//	printf("\n\n");
+//
+//	printf("1: Manage Train\n");
+//	printf("2: Train Scheduling\n");
+//	printf("3: View All Train\n");
+//	printf("4: Train Reports\n");
+//
+//	printf(">");
+//	scanf("%d", &choice);
+//	switch (choice) {
+//	case 1: manageTrain();
+//		break;
+//	case 2:trainSchedule();
+//		break;
+//	case 3: viewTrain();
+//		break;
+//	case 4: trainReports();
+//		break;
+//	default:break;
+//	}
+//}
+//void staffMenu() {
+//	int choice;
+//
+//	printf("Welcome to train scheduling module");
+//	printf("\n\n");
+//
+//	printf("1: Manage Train Schedule\n");
+//	printf("2: View Train Timetable\n");
+//	printf("3: Search Train\n");
+//
+//	printf(">");
+//	scanf("%d", &choice);
+//	switch (choice) {
+//	case 1: trainSchedule();
+//		break;
+//	case 2:trainTimetable();
+//		break;
+//	case 3: searchTrain();
+//		break;
+//	default:break;
+//	}
+//}
 
-void adminMenu();
-void staffMenu();
-
-void manageTrain();
-int addTrain();
-//int editTrain();
-//int removeTrain();
-
-void trainSchedule();
-void viewTrain();
-void trainReports();
-void searchTrain();
-void trainTimetable();
-
-
-
-void trainSchedulingModule() {
-	int selection;
-	bool isAdmin;
-
-	while (1) {
-		printf("1: Admin\n");
-		printf("2: Staff\n");
-		printf("> ");
-		scanf("%d", &selection);
-
-		if (selection == 1) {
-			isAdmin = TRUE;
-			adminMenu();
-			break; // Exit the loop after a valid selection
-		}
-		else if (selection == 2) {
-			isAdmin = FALSE;
-			staffMenu();
-			break; // Exit the loop after a valid selection
-		}
-		else {
-			printf("Invalid input, please try again\n");
-		}
-	}
-	system("pause");
-}
-
-void adminMenu() {
-
-	int choice;
-
-	printf("Welcome to train scheduling module");
-	printf("\n\n");
-
-	printf("1: Manage Train\n");
-	printf("2: Train Scheduling\n");
-	printf("3: View All Train\n");
-	printf("4: Train Reports\n");
-
-	printf(">");
-	scanf("%d", &choice);
-	switch (choice) {
-	case 1: manageTrain();
-		break;
-	case 2:trainSchedule();
-		break;
-	case 3: viewTrain();
-		break;
-	case 4: trainReports();
-		break;
-	default:break;
-	}
-}
-
-void staffMenu() {
-	int choice;
-
-	printf("Welcome to train scheduling module");
-	printf("\n\n");
-
-	printf("1: Manage Train Schedule\n");
-	printf("2: View Train Timetable\n");
-	printf("3: Search Train\n");
-
-	printf(">");
-	scanf("%d", &choice);
-	switch (choice) {
-	case 1: trainSchedule();
-		break;
-	case 2:trainTimetable();
-		break;
-	case 3: searchTrain();
-		break;
-	default:break;
-	}
-}
 // Function to check if a train ID exists in a file
-bool id_exists_in_file(char* id) {
-	FILE* file = fopen("trainSchedule.txt", "r");
-	if (file == NULL) {
-		// File doesn't exist, so ID definitely doesn't exist
-		return false;
-	}
+//bool id_exists_in_file(char* id) {
+//	FILE* file = fopen("trainSchedule.txt", "r");
+//	if (file == NULL) {
+//		// File doesn't exist, so ID definitely doesn't exist
+//		return false;
+//	}
+//
+//	Train train;
+//
+//	// Iterate through the file to find if the ID exists
+//	while (fscanf(file, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%d\n", train.trainID, train.departureStation, train.arrivalStation,
+//		&train.departureTime.hours, &train.departureTime.minutes,
+//		&train.arrivalTime.hours, &train.arrivalTime.minutes, &train.coach) != EOF) {
+//		if (strncmp(train.trainID, id, MAX_ID_LEN) == 0) {
+//			fclose(file);
+//			return true; // ID found
+//		}
+//	}
+//
+//	fclose(file);
+//	return false; // ID not found
+//}
 
-	Train train;
-
-	// Iterate through the file to find if the ID exists
-	while (fscanf(file, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%d\n", train.trainID, train.departureStation, train.arrivalStation,
-		&train.departureTime.hours, &train.departureTime.minutes,
-		&train.arrivalTime.hours, &train.arrivalTime.minutes, &train.coach) != EOF) {
-		if (strncmp(train.trainID, id, MAX_ID_LEN) == 0) {
-			fclose(file);
-			return true; // ID found
-		}
-	}
-
-	fclose(file);
-	return false; // ID not found
-}
-
-FILE* create_train_file(char* id) {
-
-	bool previous_file_found = false;
-	// Check current files number
-	FILE* file_check;
-	char filename[20];
-	while (1) {
-		sprintf(filename, "T100%d.txt", file_count + 1);
-		file_check = fopen(filename, "r");
-		if (file_check == NULL) {
-			break;
-		}
-		fclose(file_check);
-		file_count++;
-		previous_file_found = true;
-	}
-
-	for (int i = 1; i <= file_count; i++) {
-		char filename[20];
-		sprintf(filename, "T100%d.txt", i);
-		if (id_exists_in_file(&filename, &id)) {
-			printf("Error: ID already exists in file %s\n", filename);
-			return NULL;
-		}
-	}
-
-	// Create file according to previous file number
-	FILE* current_file;
-	sprintf(filename, "T100%d.txt", file_count + 1);
-	current_file = fopen(filename, "w");
-	if (current_file == NULL) {
-		printf("Error creating Train file %s\n", filename);
-		return NULL;
-	}
-	printf("%s created\n", filename);
-	return current_file;
-}
+//FILE* create_train_file(char* id) {
+//	bool previous_file_found = false;
+//	// Check current files number
+//	FILE* file_check;
+//	char filename[20];
+//	while (1) {
+//		sprintf(filename, "T100%d.txt", file_count + 1);
+//		file_check = fopen(filename, "r");
+//		if (file_check == NULL) {
+//			break;
+//		}
+//		fclose(file_check);
+//		file_count++;
+//		previous_file_found = true;
+//	}
+//
+//	for (int i = 1; i <= file_count; i++) {
+//		char filename[20];
+//		sprintf(filename, "T100%d.txt", i);
+//		if (id_exists_in_file(&filename, &id)) {
+//			printf("Error: ID already exists in file %s\n", filename);
+//			return NULL;
+//		}
+//	}
+//
+//	// Create file according to previous file number
+//	FILE* current_file;
+//	sprintf(filename, "T100%d.txt", file_count + 1);
+//	current_file = fopen(filename, "w");
+//	if (current_file == NULL) {
+//		printf("Error creating Train file %s\n", filename);
+//		return NULL;
+//	}
+//	printf("%s created\n", filename);
+//	return current_file;
+//}
 
 void manageTrain() {
 
@@ -222,99 +172,103 @@ void manageTrain() {
 	default:break;
 	}
 };
-void initializeCoachSeats(Coach* coach) {
-	char colLabels[] = "ABCDEFGHIJKLMNOPQRST"; // Column labels
-	for (int r = 0; r < 4; r++) {
-		for (int c = 0; c < 20; c++) {
-			coach->seats[r * 20 + c].row = r + 1;
-			coach->seats[r * 20 + c].col = c + 1;
-			coach->seats[r * 20 + c].isAvailable = true;
-		}
-	}
-}
 
 int addTrain() {
-
-	FILE* TSPtr;
-	FILE* TPtr;
-	char current_id[6];
+	char filepath[64];
 	char confirm;
 	//Use separate file for different train
 
-	Train train = { 0 };
-	rewind(stdin);
-	printf("Enter Train ID: ");
-	scanf("%s", current_id);
+	Train trainToAdd = { .coach = {0} };
 
-	TSPtr = fopen("trainSchedule.txt", "a");
-	TPtr = create_train_file(&current_id);
-	if (TPtr == NULL || TSPtr == NULL) {
-		printf("Error in train file");
-		return 1;
+	// trainID
+	do {
+		printf("\tTrain ID\t\t> ");
+		rewind(stdin);
+		if (scanf("%5[^\n]", &trainToAdd.trainID) != 1);
+		trainToAdd.trainID[0] = toupper(trainToAdd.trainID[0]);
 
+		// Check if ID exists
+		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToAdd.trainID);
+		printf("%s\n", trainToAdd.trainID);
+		printf("%d\n\n", validateTrainID(trainToAdd.trainID));
+		if (fopen(filepath, "r") != NULL) continue;
+		
+		if (validateTrainID(trainToAdd.trainID)) break;
+	} while (printf("Invalid or existing train ID, please try again.\n"));
+	
+	// departureStation
+	do {
+		printf("\tDeparture Station\t> ");
+		rewind(stdin);
+	} while (scanf("%41[^\n]", &trainToAdd.departureStation) != 1);
+
+	// arrivalStation
+	do {
+		printf("\tArrival Station\t\t> ");
+		rewind(stdin);
+	} while (scanf("%41[^\n]", &trainToAdd.arrivalStation) != 1);
+
+	// departureTime
+	do {
+		printf("\tDeparture time (HH:MM)\t> ");
+		rewind(stdin);
+		if (scanf("%02d:%02d", &trainToAdd.departureTime.hours, &trainToAdd.departureTime.minutes) != 2) continue;
+	} while (validateTime(&trainToAdd.departureTime.hours, &trainToAdd.departureTime.minutes));
+
+	// arrivalTime
+	do {
+		printf("\tArrival time (HH:MM)\t> ");
+		rewind(stdin);
+		if (scanf("%02d:%02d", &trainToAdd.arrivalTime.hours, &trainToAdd.arrivalTime.minutes) != 2) continue;
+	} while (validateTime(&trainToAdd.arrivalTime.hours, &trainToAdd.arrivalTime.minutes));
+
+	// init coachID
+	char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	for (int i = 0; i < 6; i++)
+	{
+		strcpy(&trainToAdd.coach[i].coachLetter, &letters[i]);
 	}
-	strcpy(train.trainID, current_id);
 
-	printf("Enter departure Station: ");
-	rewind(stdin);
-	scanf("%[^\n]", &train.departureStation);
-	printf("Enter arrival Station: ");
-	rewind(stdin);
-	scanf("%[^\n]", &train.arrivalStation);
-	printf("Enter departure time (HH:MM): ");
-	rewind(stdin);
-	scanf("%2d:%2d", &train.departureTime.hours, &train.departureTime.minutes);
-
-	printf("Enter arrival time (HH:MM): ");
-	rewind(stdin);
-	scanf("%2d:%2d", &train.arrivalTime.hours, &train.arrivalTime.minutes);
-
-
-
-	printf("%-30s: %s\n", "Train Departure Station", train.departureStation);
-	printf("%-30s: %s\n", "Train Arrival Station", train.arrivalStation);
-	printf("%-30s: %02d:%02d\n", "Train Departure Time", train.departureTime.hours, train.departureTime.minutes);
-	printf("%-30s: %02d:%02d\n", "Train Arrival Time", train.arrivalTime.hours, train.arrivalTime.minutes);
-	printf("Confirm to enter into file?(Y/N)\n");
+	// Display for confirmation
+	printf("Train ID\t> %s", trainToAdd.trainID);
+	printf("Departure Station\t> %s", trainToAdd.departureStation);
+	printf("Arrival Station\t> %s", trainToAdd.arrivalStation);
+	printf("Departure Time\t> %02d:%02d", trainToAdd.departureTime.hours, trainToAdd.departureTime.minutes);
+	printf("Arrival Time\t> %02d:%02d", trainToAdd.arrivalTime.hours, trainToAdd.arrivalTime.minutes);
+	printf("Confirm to enter into file? (Y/N)\t> ");
 	rewind(stdin);
 	scanf("%c", &confirm);
 	if (toupper(confirm) == 'Y') {
-		fprintf(TSPtr, "%s|%s|%s|%02d:%02d|%02d:%02d\n", train.trainID, train.departureStation,
-			train.arrivalStation, train.departureTime.hours,
-			train.departureTime.minutes, train.arrivalTime.hours,
-			train.arrivalTime.minutes);
-		fprintf(TPtr, "%s\n", train.trainID);
-		for (int i = 0; i < 6; i++) {
-			train.coach[i].coachID = 'A' + i;
-			initializeCoachSeats(&train.coach[i]);
-		}
-		for (int j = 0; j < 6; j++) {
-			fprintf(TPtr, "%c\n", train.coach[j].coachID);
-			for (int r = 0; r < 4; r++) {
-				for (int c = 0; c < 20; c++) {
-					fprintf(TPtr, "%d ", train.coach[j].seats[r * 20 + c].row);
-					fprintf(TPtr, "%d ", train.coach[j].seats[r * 20 + c].col);
-					fprintf(TPtr, "%d| ", train.coach[j].seats[r * 20 + c].isAvailable);
+		FILE* TPtr;
+		TPtr = fopen(filepath, "w");
+		fprintf(
+			TPtr,
+			"%s|%s|%s|%02d:%02d|%02d:%02d",
+			trainToAdd.trainID,
+			trainToAdd.departureStation,
+			trainToAdd.arrivalStation,
+			trainToAdd.departureTime.hours,
+			trainToAdd.departureTime.minutes,
+			trainToAdd.arrivalTime.hours,
+			trainToAdd.arrivalTime.minutes
+		);
+
+		// Append coach information
+		for (int coach = 0; coach < 6; coach++) {
+			fprintf(TPtr, "|%c", trainToAdd.coach[coach].coachLetter);
+
+			for (int row = 0; row < 20; row++) {
+				for (int col = 0; col < 4; col++) {
+					fprintf(TPtr, "|%d", trainToAdd.coach[coach].seats[row][col]);
 				}
-				fprintf(TPtr, "\n");
 			}
 		}
-		printf("Succesfully enter into file\n");
-		fclose(TSPtr);
-		fclose(TPtr);
 
-	}
-	else {
-		fclose(TSPtr);
+		printf("\nFinished writing file data to [%s]\n", filepath);
 		fclose(TPtr);
-		remove(TPtr);
-		printf("Exiting...\n\n");
-		manageTrain();
-
 	}
 
-
-	manageTrain();
+	return(0);
 };
 
 //int editTrain() {
