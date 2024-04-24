@@ -16,6 +16,7 @@ typedef struct {
 	char email[100];//(abc@email.com)
 	char password[20];//%s (8 - 20 character)
 	char memberID[11];//random 10digit
+	double walletBalance;
 
 } MemberDetails;
 
@@ -71,6 +72,9 @@ void inputMemberInfo(MemberDetails* member) {
 		if (scanf("%s", member->password) != 1) continue;
 		if (validateMemberPassword(member->password)) break;
 	} while (printf("Length between 8 - 20\n"));
+
+	//ewalletBalance
+	member->walletBalance = 0.0;
 }
 
 int memberRegistration() {
@@ -110,17 +114,17 @@ int memberRegistration() {
 		if (memberFP == NULL) {
 			break;
 		}
+		fclose(memberFP);
 	}
 
-	memberFP = fopen(filepath, "wb");
-	fwrite(&tempMember, sizeof(MemberDetails), 1, memberFP);
-	fclose(memberFP);
+	writeFile(&tempMember);
 
 	return(0);
 }
 
 int displayMemberInfo(MemberDetails* member) {
 	printf("Member Information \n");
+	printf("==================\n");
 	printf("Name\t: %[^\n]\n", member->name);
 	printf("Gender\t: %c\n", member->gender);
 	printf("Phone No.\t: %s\n", member->phoneNo);
@@ -131,31 +135,32 @@ int displayMemberInfo(MemberDetails* member) {
 
 	printf("Member ID\t: %s\n", member->memberID);
 	printf("\n\n");
-	char show;
+	char show = 'N';
 	show = toupper(show);
-	printf("Show password (Y)\t> ");//show password?
+	printf("Show password (Y) ?\t> ");//show password?
 	scanf("%c", &show);
 	if (show == 'Y') {
-		printf("Password \t: ", member->password);
+		printf("Password \t: %s", member->password);
 	}
 	return(0);
 }
 
-int editInfo(MemberDetails* member) {
+int editMemberInfo(MemberDetails* member) {
 	//for member display info and edit info
 	displayMemberInfo(&member);
 
 	// Member old password
-	char pw[20];
+	char pw[20] = { 0 };
 	printf("Enter Password: ");
 	scanf("%s", pw);
+	printf("\n\n");
 
 	// Check if the old password matches
 	if (strcmp(pw, member->password) == 0) {
-		int select;
+		char select;
 		do {
 			// Display options for editing
-			printf("\n1. Edit Name\n");
+			printf("1. Edit Name\n");
 			printf("2. Edit Gender\n");
 			printf("3. Edit IC\n");
 			printf("4. Edit Phone No.\n");
@@ -164,8 +169,8 @@ int editInfo(MemberDetails* member) {
 			printf("0. Exit\n");
 
 			// Allow member to edit info until they choose to exit
-			printf("Select 0 - 6: ");
-			scanf("%d", &select);
+			printf("Select 1 - 6 (0 to exit): ");
+			scanf("%s", &select);
 
 			switch (select) {
 			case 1:
@@ -199,6 +204,8 @@ int editInfo(MemberDetails* member) {
 				break;
 			}
 		} while (select != 0);
+
+		writeFile(&member);
 	}
 	else {
 		printf("Wrong password\n");
@@ -213,13 +220,13 @@ void deleteMemberAccount(MemberDetails* member) {
 	printf("\n\n");
 	printf("Member ID \t:%s\n", member->memberID);
 
-	char delete;
-	printf("Are you sure you want to delete your account ? (Y) \n ");
+	char delete = 'N';
+	printf("Are you sure you want to delete your account ? (Y) :\n ");
 	scanf("%c", &delete);
 	delete = toupper(delete);
 
 
-	char filepath;
+	char filepath = "data/bin/staff/";
 	strcat(filepath, member->memberID);
 	strcat(filepath, ".bin");
 
@@ -229,7 +236,57 @@ void deleteMemberAccount(MemberDetails* member) {
 	return(0);
 }
 
+int walletTopUp() {
+
+}
+
+int walletTransactions() {
+
+}
+
+int walletMenu(MemberDetails* member) {
+	printf("Wallet Info\n");
+	printf("==================\n\n");
+	printf("Name \t: %s\n", member->name);
+	printf("MemberID \t: %s\n", member->memberID);
+	printf("Wallet Balance \t: %f\n", member->walletBalance);
+
+	char select;
+	do {
+		printf("1.Top Up\n");
+		printf("2. Transactions History\n");
+		printf("\n\n");
+
+		printf("Select 1 - 6 (0 to exit): ");
+		scanf("%s", &select);
+
+		switch (select) {
+		case 1:
+			walletTopUp();
+			break;
+		case 2:
+			walletTransactions();
+			break;
+		case 0:
+			break;
+		default:
+			printf("Invalid option\n");
+			break;
+		}
+	} while (select != 0);
 
 
 
 
+}
+
+int writeFile(MemberDetails* member) {
+	FILE* memberFP;
+	char filepath[128] = "data/bin/member/";
+	strcat(filepath, member->memberID);
+	strcat(filepath, ".bin");
+
+	memberFP = fopen(filepath, "wb");
+	fwrite(&member, sizeof(MemberDetails), 1, memberFP);
+	fclose(memberFP);
+}
