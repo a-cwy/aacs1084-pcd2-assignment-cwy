@@ -30,15 +30,6 @@ int main(void) {
 		case 2:
 			addTrain();
 			break;
-		case 5:
-			editTrain();
-			break;
-		case 6:
-			searchTrain();
-			break;
-		case 7:
-			viewSchedule();
-			break;
 		default:
 			break;
 		}
