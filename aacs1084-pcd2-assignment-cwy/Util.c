@@ -159,8 +159,8 @@ bool validateEmploymentType(const char* employmentType) {
 }
 
 bool validateTime(const int* hours, const int* minutes) {
-	if (hours < 0 || hours > 23) return(false);
-	if (minutes < 0 || minutes > 59) return(false);
+	if (*hours < 0 || *hours > 23) return(false);
+	if (*minutes < 0 || *minutes > 59) return(false);
 	return(true);
 }
 

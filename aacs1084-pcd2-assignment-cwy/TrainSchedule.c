@@ -190,8 +190,6 @@ int addTrain() {
 
 		// Check if ID exists
 		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToAdd.trainID);
-		printf("%s\n", trainToAdd.trainID);
-		printf("%d\n\n", validateTrainID(trainToAdd.trainID));
 		if (fopen(filepath, "r") != NULL) continue;
 		
 		if (validateTrainID(trainToAdd.trainID)) break;
@@ -214,29 +212,28 @@ int addTrain() {
 		printf("\tDeparture time (HH:MM)\t> ");
 		rewind(stdin);
 		if (scanf("%02d:%02d", &trainToAdd.departureTime.hours, &trainToAdd.departureTime.minutes) != 2) continue;
-	} while (validateTime(&trainToAdd.departureTime.hours, &trainToAdd.departureTime.minutes));
+	} while (!validateTime(&trainToAdd.departureTime.hours, &trainToAdd.departureTime.minutes));
 
 	// arrivalTime
 	do {
 		printf("\tArrival time (HH:MM)\t> ");
 		rewind(stdin);
 		if (scanf("%02d:%02d", &trainToAdd.arrivalTime.hours, &trainToAdd.arrivalTime.minutes) != 2) continue;
-	} while (validateTime(&trainToAdd.arrivalTime.hours, &trainToAdd.arrivalTime.minutes));
+	} while (!validateTime(&trainToAdd.arrivalTime.hours, &trainToAdd.arrivalTime.minutes));
 
 	// init coachID
-	char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	for (int i = 0; i < 6; i++)
 	{
-		strcpy(&trainToAdd.coach[i].coachLetter, &letters[i]);
+		trainToAdd.coach[i].coachLetter = 'A' + i;
 	}
 
 	// Display for confirmation
-	printf("Train ID\t> %s", trainToAdd.trainID);
-	printf("Departure Station\t> %s", trainToAdd.departureStation);
-	printf("Arrival Station\t> %s", trainToAdd.arrivalStation);
-	printf("Departure Time\t> %02d:%02d", trainToAdd.departureTime.hours, trainToAdd.departureTime.minutes);
-	printf("Arrival Time\t> %02d:%02d", trainToAdd.arrivalTime.hours, trainToAdd.arrivalTime.minutes);
-	printf("Confirm to enter into file? (Y/N)\t> ");
+	printf("\nTrain ID\t\t> %s\n", trainToAdd.trainID);
+	printf("Departure Station\t> %s\n", trainToAdd.departureStation);
+	printf("Arrival Station\t\t> %s\n", trainToAdd.arrivalStation);
+	printf("Departure Time\t\t> %02d:%02d\n", trainToAdd.departureTime.hours, trainToAdd.departureTime.minutes);
+	printf("Arrival Time\t\t> %02d:%02d\n", trainToAdd.arrivalTime.hours, trainToAdd.arrivalTime.minutes);
+	printf("\nConfirm to enter into file? (Y/N)\t> ");
 	rewind(stdin);
 	scanf("%c", &confirm);
 	if (toupper(confirm) == 'Y') {
