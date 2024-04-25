@@ -356,7 +356,7 @@ int editTrain() {
 
 		}
 
-		printf("\CONTINUE to edit file? (Y/N)\t> ");
+		printf("\nCONTINUE to edit file? (Y/N)\t> ");
 		rewind(stdin);
 		scanf("%c", &keepEdit);
 
@@ -370,7 +370,7 @@ int editTrain() {
 	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 
-	printf("\CONFIRM to edit file?(Y/N)\t> ");
+	printf("\nCONFIRM to edit file?(Y/N)\t> ");
 	rewind(stdin);
 	scanf("%c", &confirm);
 
