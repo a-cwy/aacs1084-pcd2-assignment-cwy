@@ -25,11 +25,5 @@ typedef struct Staff {
 // Functions
 */
 
-// Validates staff login. Return codes : 0 - Login accepted, 1 - Login denied, 2 - Staff file cannot be found
-int validateStaffLogin(char* staffID, char* staffPassword);
-
-// Creates a new staff file. Return codes : 0 - Succesfully created new staff file, 1 - Insufficient permission, 2 - Staff file already exists
-int createStaff(Staff* currentStaff);
-
-// Prompts for Staff ID and displays information of related staff.
-int viewStaffInfo();
+// Menu function for staff
+int staffMenu();
