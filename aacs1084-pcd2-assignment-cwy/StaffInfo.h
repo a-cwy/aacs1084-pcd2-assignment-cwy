@@ -6,7 +6,7 @@
 // Structures
 */
 
-typedef struct StaffObject {
+typedef struct Staff {
     char staffID[6];
     char staffIC[15]; //123456-12-1234
     char staffName[101];
