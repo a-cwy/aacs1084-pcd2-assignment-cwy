@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+//Utilities
+
+int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath));
+
 //Menu
 
 // Displays a menu with options based on parameter. Returns integer for selected menu option.

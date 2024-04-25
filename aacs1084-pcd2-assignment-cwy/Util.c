@@ -5,9 +5,52 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <wchar.h>
 #include <stdbool.h>
+#include <windows.h>
 
 #pragma warning(disable:4996)
+
+//
+// Utility Functions
+//
+
+int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath)) {
+	// Convert searchDir to wchar_t
+	wchar_t wSearchDir[1024];
+	mbstowcs(wSearchDir, cSearchDir, 1024);
+	
+	WIN32_FIND_DATA file;
+	HANDLE searchHandle = NULL;
+	wchar_t searchPath[2048];
+
+	// Search all files and folders in directory
+	wsprintf(searchPath, L"%s\\*.*", wSearchDir);
+
+	// Check if files exists in the directory, return 1 if no files exist
+	if ((searchHandle = FindFirstFile(searchPath, &file)) == INVALID_HANDLE_VALUE) return(1);
+
+	do {
+		// First two files always "." and ".."
+		if (wcscmp(file.cFileName, L".") == 0 || wcscmp(file.cFileName, L"..") == 0) continue;
+		
+		// Get filepath of first file in searchDir
+		wsprintf(searchPath, L"%s\\%s", wSearchDir, file.cFileName);
+
+		// Check if entity is a file or folder
+		if (file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
+
+		// Run callback function with filepath
+		char filepath[2048];
+		wcstombs(filepath, &searchPath, 2048);
+		(*callback)(filepath);
+		
+	} while (FindNextFile(searchHandle, &file));
+
+	FindClose(searchHandle);
+
+	return(0);
+}
 
 //
 // Menu

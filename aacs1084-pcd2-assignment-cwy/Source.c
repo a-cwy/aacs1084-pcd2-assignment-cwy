@@ -8,7 +8,7 @@
 #pragma warning(disable:4996)
 
 #define MAIN_MENU_OPTION_SIZE 2
-const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Add Train"};
+const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Add Train" };
 
 int main(void) {
 	int menuChoice;
