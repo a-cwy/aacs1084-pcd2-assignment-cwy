@@ -21,6 +21,29 @@ typedef struct {
 
 } MemberDetails;
 
+int displayMemberInfo(MemberDetails* member) {
+	printf("Member Information \n");
+	printf("==================\n");
+	printf("Name\t: %s\n", member->name);
+	printf("Gender\t: %c\n", member->gender);
+	printf("Phone No.\t: %s\n", member->phoneNo);
+	printf("Email\t: %s\n", member->email);
+
+	int length = (strlen(member->password));
+	printf("Password\t: %d\n", length);
+
+	printf("Member ID\t: %s\n", member->memberID);
+	printf("\n\n");
+	char show = 'N';
+	show = toupper(show);
+	printf("Show password (Y) ?\t> ");//show password?
+	scanf("%c", &show);
+	if (show == 'Y') {
+		printf("Password \t: %s", member->password);
+	}
+	return(0);
+}
+
 void generateMemberID(char* tempMemberID) {
 
 	srand(time(0));
@@ -41,7 +64,7 @@ void inputMemberInfo(MemberDetails* member) {
 	do {
 		printf("Gender (M/F)\t: ");
 		if (scanf(" %c", &member->gender) != 1) continue;
-		if (validateGender(member->gender)) break;
+		if (validateGender(&member->gender)) break;
 	} while (printf("Invalid character , please try again. \n"));
 
 	//ic no
@@ -120,29 +143,6 @@ int memberRegistration() {
 
 	writeFile(&tempMember);
 
-	return(0);
-}
-
-int displayMemberInfo(MemberDetails* member) {
-	printf("Member Information \n");
-	printf("==================\n");
-	printf("Name\t: %[^\n]\n", member->name);
-	printf("Gender\t: %c\n", member->gender);
-	printf("Phone No.\t: %s\n", member->phoneNo);
-	printf("Email\t: %s\n", member->email);
-
-	int length = (strlen(member->password));
-	printf("Password\t: %d\n", length);
-
-	printf("Member ID\t: %s\n", member->memberID);
-	printf("\n\n");
-	char show = 'N';
-	show = toupper(show);
-	printf("Show password (Y) ?\t> ");//show password?
-	scanf("%c", &show);
-	if (show == 'Y') {
-		printf("Password \t: %s", member->password);
-	}
 	return(0);
 }
 
