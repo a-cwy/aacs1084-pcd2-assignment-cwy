@@ -35,34 +35,6 @@ int displayMenu(const char *menuOptions[], int optionsCount) {
 	return(choice);
 }
 
-int handleLogin(char loginType) {
-	// Variables for login information
-	char loginID[6], loginPassword[40];
-	
-	// Prompt for login
-	printf("Login :\n");
-	printf("\tID       : ");
-	rewind(stdin);
-	fgets(loginID, 5, stdin);
-
-	printf("\tPassword : ");
-	rewind(stdin);
-	fgets(loginPassword, 39, stdin);
-
-	// Function call to validate login
-	int code = 0;
-	if (loginType == 's')
-	{
-		code = validateStaffLogin(loginID, loginPassword);
-	}
-	else {
-		// code = validateMemberLogin(&loginID, &loginPassword);
-	}
-
-	return(code);
-}
-
-
 //
 // Input Valdiation
 //

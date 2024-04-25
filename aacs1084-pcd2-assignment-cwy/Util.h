@@ -7,10 +7,6 @@
 // Displays a menu with options based on parameter. Returns integer for selected menu option.
 int displayMenu(const char *menuOptions[], int optionsCount);
 
-// Handles login for "staff" or "member".
-int handleLogin(char loginType);
-
-
 // Input Validation
 
 // StaffID follows format S1234
