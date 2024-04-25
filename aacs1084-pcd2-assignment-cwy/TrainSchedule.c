@@ -355,7 +355,7 @@ int editTrain() {
 			break;
 
 		}
-		
+
 		printf("\CONTINUE to edit file? (Y/N)\t> ");
 		rewind(stdin);
 		scanf("%c", &keepEdit);
@@ -373,7 +373,7 @@ int editTrain() {
 	printf("\CONFIRM to edit file?(Y/N)\t> ");
 	rewind(stdin);
 	scanf("%c", &confirm);
-	
+
 
 	if (toupper(confirm) == 'Y') {
 		//overwrite original file
@@ -414,6 +414,92 @@ int editTrain() {
 	else {
 		printf("Edit cancelled\n");
 	}
+
+	return(0);
+}
+
+
+int searchTrain() {
+	char filepath[64];
+	char keepSearch;
+	FILE* sPtr;
+	Train trainToSearch = { .coach = {0} };
+
+	do {
+		// trainID
+		do {
+			printf("\tTrain ID\t\t> ");
+			rewind(stdin);
+			if (scanf("%5[^\n]", &trainToSearch.trainID) != 1);
+			trainToSearch.trainID[0] = toupper(trainToSearch.trainID[0]);
+
+			// Check if ID exists
+			sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToSearch.trainID);
+			if ((sPtr = fopen(filepath, "r")) == NULL) continue;
+
+			if (validateTrainID(trainToSearch.trainID)) break;
+		} while (printf("Train ID does not exist, please try again.\n"));
+
+		fscanf(sPtr, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+			trainToSearch.trainID,
+			trainToSearch.departureStation,
+			trainToSearch.arrivalStation,
+			&trainToSearch.departureTime.hours,
+			&trainToSearch.departureTime.minutes,
+			&trainToSearch.arrivalTime.hours,
+			&trainToSearch.arrivalTime.minutes);
+		
+		// Display Train Information
+		printf("\nTrain ID\t\t> %s\n", trainToSearch.trainID);
+		printf("Departure Station\t> %s\n", trainToSearch.departureStation);
+		printf("Arrival Station\t\t> %s\n", trainToSearch.arrivalStation);
+		printf("Departure Time\t\t> %02d:%02d\n", trainToSearch.departureTime.hours, trainToSearch.departureTime.minutes);
+		printf("Arrival Time\t\t> %02d:%02d\n", trainToSearch.arrivalTime.hours, trainToSearch.arrivalTime.minutes);
+
+		printf("Search another?(Y/N)> ");
+		rewind(stdin);
+		scanf("%c", &keepSearch);
+	} while (toupper(keepSearch) != 'N');
+
+	fclose(sPtr);
+	return(0);
+
+	
+
+}
+
+
+int viewSchedule() {
+	char filepath[64];
+	char trainID[6];
+	FILE* schPtr;
+	Train trainSch;
+	int trainCount = 0;
+	printf("\n%-10s%-20s%-20s%-20s%-15s\n", "Train ID", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time");
+	printf("%-85s\n", "==================================================================================");
+	for (int i = 0; i <= 9999; i++) {
+		sprintf(trainID, "T%000d", i);
+		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainID );
+		if ((schPtr = fopen(filepath, "r")) == NULL)continue;
+		fscanf(schPtr, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+			trainSch.trainID,
+			trainSch.departureStation,
+			trainSch.arrivalStation,
+			&trainSch.departureTime.hours,
+			&trainSch.departureTime.minutes,
+			&trainSch.arrivalTime.hours,
+			&trainSch.arrivalTime.minutes);
+
+
+		printf("%-10s%-20s%-20s\t   %02d:%02d             %02d:%02d\n", 
+			trainSch.trainID, trainSch.departureStation, trainSch.arrivalStation, 
+			trainSch.departureTime.hours, trainSch.departureTime.minutes, 
+			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes);
+		trainCount++;
+		fclose(schPtr);
+		
+	}
+	printf("Total %d train listed\n\n", trainCount);
 
 	return(0);
 }
@@ -560,8 +646,6 @@ void viewTrain() {
 void trainReports() {
 };
 
-void searchTrain() {
-};
 
 
 void trainTimetable() {
