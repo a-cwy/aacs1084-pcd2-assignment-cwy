@@ -166,5 +166,5 @@ bool validateTime(const int* hours, const int* minutes) {
 
 bool validateMemberPassword(const char* password) {
 	if (strlen(password) < 8 || strlen(password) > 20) return(false);
-	else return(true);
+	return(true);
 }

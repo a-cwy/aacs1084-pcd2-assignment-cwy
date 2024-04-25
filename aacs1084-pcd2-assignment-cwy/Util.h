@@ -39,3 +39,6 @@ bool validateEmail(const char* email);
 
 // Time follows 24h format
 bool validateTime(const int* hours, const int* minutes);
+
+// Member Password is between 8 and 20 characters, inclusive
+bool validateMemberPassword(const char* password);
