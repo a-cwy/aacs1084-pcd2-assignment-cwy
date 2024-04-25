@@ -191,10 +191,10 @@ int addTrain() {
 		// Check if ID exists
 		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToAdd.trainID);
 		if (fopen(filepath, "r") != NULL) continue;
-		
+
 		if (validateTrainID(trainToAdd.trainID)) break;
 	} while (printf("Invalid or existing train ID, please try again.\n"));
-	
+
 	// departureStation
 	do {
 		printf("\tDeparture Station\t> ");
@@ -269,6 +269,154 @@ int addTrain() {
 	return(0);
 };
 
+
+int editTrain() {
+	char filepath[64];
+	char keepEdit;
+	char confirm;
+	int choice;
+	//Use separate file for different train
+	FILE* ePtr;
+
+
+	Train trainToEdit = { .coach = {0} };
+
+	// trainID
+	do {
+		printf("\tTrain ID to edit\t\t> ");
+		rewind(stdin);
+		if (scanf("%5[^\n]", &trainToEdit.trainID) != 1);
+		trainToEdit.trainID[0] = toupper(trainToEdit.trainID[0]);
+
+		// Check if ID exists
+		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToEdit.trainID);
+		if ((ePtr = fopen(filepath, "r")) == NULL) continue;
+
+		if (validateTrainID(trainToEdit.trainID)) break;
+	} while (printf("Invalid train ID, please try again.\n"));
+	//Scanning to structure
+	fscanf(ePtr, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+		trainToEdit.trainID,
+		trainToEdit.departureStation,
+		trainToEdit.arrivalStation,
+		&trainToEdit.departureTime.hours,
+		&trainToEdit.departureTime.minutes,
+		&trainToEdit.arrivalTime.hours,
+		&trainToEdit.arrivalTime.minutes);
+		// Display Train Information
+		printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
+		printf("Departure Station\t> %s\n", trainToEdit.departureStation);
+		printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
+		printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
+		printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
+	
+	//close for reading
+	fclose(ePtr);
+
+
+	//loop for edit desired element
+	do {
+
+		printf("Edit Menu\n\n");
+		printf("1: Departure Station\n");
+		printf("2: Arrival Station\n");
+		printf("3: Departure Time\n");
+		printf("4: Arrival Time\n");
+		scanf("%d", &choice);
+		switch (choice) {
+		case 1:
+			do {
+				printf("\tNew Departure Station\t> ");
+				rewind(stdin);
+			} while (scanf("%41[^\n]", &trainToEdit.departureStation) != 1);
+			break;
+		case 2:
+			do {
+				printf("\tNew Arrival Station\t\t> ");
+				rewind(stdin);
+			} while (scanf("%41[^\n]", &trainToEdit.arrivalStation) != 1);
+			break;
+		case 3:
+			do {
+				printf("\tNew Departure time (HH:MM)\t> ");
+				rewind(stdin);
+				if (scanf("%02d:%02d", &trainToEdit.departureTime.hours, &trainToEdit.departureTime.minutes) != 2) continue;
+			} while (!validateTime(&trainToEdit.departureTime.hours, &trainToEdit.departureTime.minutes));
+			break;
+		case 4:
+			do {
+				printf("\tArrival time (HH:MM)\t> ");
+				rewind(stdin);
+				if (scanf("%02d:%02d", &trainToEdit.arrivalTime.hours, &trainToEdit.arrivalTime.minutes) != 2) continue;
+			} while (!validateTime(&trainToEdit.arrivalTime.hours, &trainToEdit.arrivalTime.minutes));
+			break;
+		default:
+			printf("Invalid choice, Please Choose again\n");
+			break;
+
+		}
+		
+		printf("\CONTINUE to edit file? (Y/N)\t> ");
+		rewind(stdin);
+		scanf("%c", &keepEdit);
+
+
+	} while (toupper(keepEdit) != 'N');
+
+	// Display for confirmation
+	printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
+	printf("Departure Station\t> %s\n", trainToEdit.departureStation);
+	printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
+	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
+	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
+
+	printf("\CONFIRM to edit file?(Y/N)\t> ");
+	rewind(stdin);
+	scanf("%c", &confirm);
+	
+
+	if (toupper(confirm) == 'Y') {
+		//overwrite original file
+		FILE* TPtr;
+		TPtr = fopen(filepath, "w");
+
+		// init coachID
+		for (int i = 0; i < 6; i++)
+		{
+			trainToEdit.coach[i].coachLetter = 'A' + i;
+		}
+		fprintf(
+			TPtr,
+			"%s|%s|%s|%02d:%02d|%02d:%02d",
+			trainToEdit.trainID,
+			trainToEdit.departureStation,
+			trainToEdit.arrivalStation,
+			trainToEdit.departureTime.hours,
+			trainToEdit.departureTime.minutes,
+			trainToEdit.arrivalTime.hours,
+			trainToEdit.arrivalTime.minutes
+		);
+
+		// Append coach information
+		for (int coach = 0; coach < 6; coach++) {
+			fprintf(TPtr, "|%c", trainToEdit.coach[coach].coachLetter);
+
+			for (int row = 0; row < 20; row++) {
+				for (int col = 0; col < 4; col++) {
+					fprintf(TPtr, "|%d", trainToEdit.coach[coach].seats[row][col]);
+				}
+			}
+		}
+
+		printf("\nFinished writing file data to [%s]\n", filepath);
+		fclose(TPtr);
+	}
+	else {
+		printf("Edit cancelled\n");
+	}
+
+	return(0);
+}
 //int editTrain() {
 //	char editID[6];
 //	char editingFile[20];

@@ -7,8 +7,8 @@
 
 #pragma warning(disable:4996)
 
-#define MENU_OPTION_SIZE 4
-const char *MAIN_MENU_OPTIONS[MENU_OPTION_SIZE] = { "View Staff Info", "Create Staff Account", "Staff Login", "Add Train"};
+#define MENU_OPTION_SIZE 5
+const char *MAIN_MENU_OPTIONS[MENU_OPTION_SIZE] = { "View Staff Info", "Create Staff Account", "Staff Login", "Add Train", "Edit Train" };
 
 int main(void) {
 
@@ -50,6 +50,9 @@ int main(void) {
 			break;
 		case 4:
 			addTrain();
+			break;
+		case 5:
+			editTrain();
 			break;
 		default:
 			break;
