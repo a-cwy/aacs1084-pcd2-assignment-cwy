@@ -810,8 +810,9 @@ int searchTrain() {
 		printf("Arrival Station\t\t> %s\n", trainToSearch.arrivalStation);
 		printf("Departure Time\t\t> %02d:%02d\n", trainToSearch.departureTime.hours, trainToSearch.departureTime.minutes);
 		printf("Arrival Time\t\t> %02d:%02d\n", trainToSearch.arrivalTime.hours, trainToSearch.arrivalTime.minutes);
+		seatsStatus(filepath);
 
-		printf("Search another?(Y/N)> ");
+		printf("\nSearch another?(Y/N)> ");
 		rewind(stdin);
 		scanf("%c", &keepSearch);
 	} while (toupper(keepSearch) != 'N');
@@ -829,8 +830,8 @@ int viewAllTrain() {
 	FILE* schPtr;
 	Train trainSch;
 	int trainCount = 0;
-	printf("\n%-10s%-20s%-20s%-20s%-15s\n", "Train ID", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time");
-	printf("%-85s\n", "==================================================================================");
+	printf("\n%-10s%-20s%-20s%-20s%-15s%-20s\n", "Train ID", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
+	printf("%-105s\n", "====================================================================================================");
 	for (int i = 0; i <= 9999; i++) {
 		sprintf(trainID, "T%000d", i);
 		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainID );
@@ -844,11 +845,11 @@ int viewAllTrain() {
 			&trainSch.arrivalTime.hours,
 			&trainSch.arrivalTime.minutes);
 
-
-		printf("%-10s%-20s%-20s\t   %02d:%02d             %02d:%02d\n", 
+		int availableSeats = seatsStatus(filepath);
+		printf("%-10s%-20s%-20s\t   %02d:%02d             %02d:%02d\t\t %d\n", 
 			trainSch.trainID, trainSch.departureStation, trainSch.arrivalStation, 
 			trainSch.departureTime.hours, trainSch.departureTime.minutes, 
-			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes);
+			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes,availableSeats );
 		trainCount++;
 		fclose(schPtr);
 		
@@ -927,4 +928,58 @@ int removeTrain() {
 
 	return(0);
 };
+
+int seatsStatus(const char *filepath) {
+	FILE* fp;
+
+	Train train;
+
+	int coachIndex;
+	char coachLetter;
+	int row;
+	int col;
+	int seatStatus;
+	int availableSeats = 0;
+
+	fp = fopen(filepath, "r");
+	if (fp == NULL) return;
+
+	while (fscanf(fp, "%[^|]|%[^|]|%[^|]|%d:%d|%d:%d|",
+		train.trainID, train.departureStation, train.arrivalStation,
+		&train.departureTime.hours, &train.departureTime.minutes,
+		&train.arrivalTime.hours, &train.arrivalTime.minutes) == 7) {
+
+		//read seat availability for each coach
+		for (coachIndex = 0; coachIndex < 6; coachIndex++) {
+			fscanf(fp, "%c|", &coachLetter); //read coach letter
+
+			for (row = 0; row < 20; row++) { //read availability
+				for (col = 0; col < 4; col++) {
+					fscanf(fp, "%d|", &seatStatus);
+
+					train.coach[coachIndex].seats[row][col] = (seatStatus == 1);
+				}
+			}
+		}
+
+
+		
+
+		for (int coachIndex = 0; coachIndex < 6; coachIndex++) {
+			for (int row = 0; row < 20; row++) {
+				for (int col = 0; col < 4; col++) {
+					if (!train.coach[coachIndex].seats[row][col]) {
+						availableSeats++;
+					}
+				}
+			}
+		}
+
+		
+
+	}
+
+	fclose(fp);
+	return availableSeats;
+}
 
