@@ -199,7 +199,8 @@ int manageTrain(bool *admin) {
 		case 2:
 			adminEditTrain();
 			break;
-		case 3:// removeTrain();
+		case 3:
+			removeTrain();
 			break;
 		default:break;
 		}
@@ -779,6 +780,7 @@ int searchTrain() {
 	Train trainToSearch = { .coach = {0} };
 
 	do {
+		system("cls");
 		// trainID
 		do {
 			printf("\tTrain ID\t\t> ");
@@ -821,7 +823,6 @@ int searchTrain() {
 
 }
 
-
 int viewAllTrain() {
 	char filepath[64];
 	char trainID[6];
@@ -860,150 +861,70 @@ int viewAllTrain() {
 
 	return(0);
 }
-//int editTrain() {
-//	char editID[6];
-//	char editingFile[20];
-//	int choice;
-//	char selection;
-//
-//	FILE* editFile = NULL;
-//	printf("Enter the id you want to edit: ");
-//	scanf("%s", editID);
-//
-//	for (int i = 0; i <= file_count; i++) {
-//		sprintf(editingFile, "train%d.bin", i);
-//		if (id_exists_in_file(&editingFile, &editID) == TRUE) {
-//			editFile = fopen("trainSchedule.txt", "r");
-//			if (editFile != NULL) {
-//				break;
-//			}
-//		}
-//
-//	}
-//
-//
-//	if (editFile != NULL) {
-//		Train trainEdit = { 0 };
-//		fread(&trainEdit, sizeof(Train), 1, editFile);
-//
-//		printf("%-30s: %s\n", "Train ID", trainEdit.trainID);
-//		printf("%-30s: %s\n", "Train Departure Station", trainEdit.departureStation);
-//		printf("%-30s: %s\n", "Train Arrival Station", trainEdit.arrivalStation);
-//		printf("%-30s: %02d:%02d\n", "Train Departure Time", trainEdit.departureTime.hours, trainEdit.departureTime.minutes);
-//		printf("%-30s: %02d:%02d\n", "Train Arrival Time", trainEdit.departureTime.hours, trainEdit.departureTime.minutes);
-//		printf("%-30s: %d\n", "Train Available Coach", trainEdit.coach);
-//
-//		do {
-//			printf("Select the value you want to edit\n");
-//			printf("1:Train Departure Station\n");
-//			printf("2:Train Arrival Station\n");
-//			printf("3:Train Departure Time\n");
-//			printf("4:Train Arrival Time\n");
-//			printf("5:Train Available Coach\n");
-//			rewind(stdin);
-//			scanf("%d", &choice);
-//
-//			switch (choice) {
-//			
-//			case 1:
-//				printf("Enter new Departure Station: ");
-//				scanf("[^\n]", trainEdit.departureStation);
-//				break;
-//			case 2:
-//				printf("Enter new Arrival Station: ");
-//				scanf("[^\n]", trainEdit.arrivalStation);
-//				break;
-//			case 3:
-//				printf("Enter new Departure Time(HH:MM): ");
-//				scanf("%2d:%2d", &trainEdit.departureTime.time.hours, &trainEdit.departureTime.time.minutes);
-//				break;
-//			case 4:
-//				printf("Enter new Arrival Time(HH:MM): ");
-//				scanf("%2d:%2d", &trainEdit.departureTime.time.hours, &trainEdit.departureTime.time.minutes);
-//				break;
-//			case 5:
-//				printf("Enter new Available Seats: ");
-//				scanf("%d", &trainEdit.coach);
-//				break;
-//			default:
-//				printf("Invalid choice.Please try again\n");
-//				break;
-//
-//			}
-//			printf("Do you want to continue editing? (Y/N): ");
-//			scanf("%c", &selection);
-//		} while (toupper(selection) == 'Y');
-//	}
-//	
-//
-//	return 0;
-//};
 
-//int removeTrain() {
-//	char removeID[6];
-//	char removingFile[20];
-//	FILE* removeFile = NULL;
-//	char selection;
-//	printf("Enter the Train ID you want to remove: ");
-//	scanf("%s", removeID);
-//	for (int i = 0; i <= file_count; i++) {
-//		sprintf(removingFile, "train%d.bin", i);
-//		if (id_exists_in_file(&removingFile, &removeID) == TRUE) {
-//			removeFile = fopen(removingFile, "rb");
-//			if(removeFile != NULL){
-//				break;
-//			}
-//			
-//		}
-//
-//	}
-//	
-//	if (removeFile != NULL) {
-//		Train trainRemove;
-//
-//		fread(&trainRemove, sizeof(Train), 1, removeFile);
-//		printf("%-30s: %s\n", "Train ID", trainRemove.trainID);
-//		printf("%-30s: %s\n", "Train Departure Station", trainRemove.departureStation);
-//		printf("%-30s: %s\n", "Train Arrival Station", trainRemove.arrivalStation);
-//		printf("%-30s: %d:%d\n", "Train Departure Time", trainRemove.departureTime.hours, trainRemove.departureTime.minutes);
-//		printf("%-30s: %d:%d\n", "Train Arrival Time", trainRemove.arrivalTime.hours, trainRemove.arrivalTime.minutes);
-//		printf("%-30s: %d\n", "Train Available Coach", trainRemove.coach);
-//
-//
-//		printf("Do you want to remove this file?(Y/N)\n");
-//		scanf("%c", &selection);
-//
-//		if (toupper(selection) == 'Y') {
-//			remove(removeFile);
-//			printf("Succesfully removed the file\n");
-//			return 0;
-//		}
-//		else {
-//			fclose(removeFile);
-//			printf("Returning to menu");
-//			return 0;
-//		}
-//	}
-//	else {
-//		printf("File not found, unable to remove\n");
-//		return 0;
-//	}
-//
-//};
-//
+int removeTrain() {
+	char filepath[64];
+	char confirm;
+	
+	FILE* rPtr;
+	Train trainToRemove = { .coach = {0} };
 
-//void trainSchedule() {
-//
-//};
-//
-//
-//
-//void trainReports() {
-//};
-//
-//
-//
-//void trainTimetable() {
-//
-//};
+	
+	system("cls");
+	// trainID
+	do {
+		printf("\tTrain ID\t\t> ");
+		rewind(stdin);
+		if (scanf("%5[^\n]", &trainToRemove.trainID) != 1);
+		trainToRemove.trainID[0] = toupper(trainToRemove.trainID[0]);
+
+		// Check if ID exists
+		sprintf(filepath, "data/text/trainSchedule/%s.txt", trainToRemove.trainID);
+		if ((rPtr = fopen(filepath, "r")) == NULL) continue;
+
+		if (validateTrainID(trainToRemove.trainID)) break;
+	} while (printf("Train ID does not exist, please try again.\n"));
+
+	fscanf(rPtr, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+		trainToRemove.trainID,
+		trainToRemove.departureStation,
+		trainToRemove.arrivalStation,
+		&trainToRemove.departureTime.hours,
+		&trainToRemove.departureTime.minutes,
+		&trainToRemove.arrivalTime.hours,
+		&trainToRemove.arrivalTime.minutes);
+
+	// Display Train Information
+	printf("\nTrain ID\t\t> %s\n", trainToRemove.trainID);
+	printf("Departure Station\t> %s\n", trainToRemove.departureStation);
+	printf("Arrival Station\t\t> %s\n", trainToRemove.arrivalStation);
+	printf("Departure Time\t\t> %02d:%02d\n", trainToRemove.departureTime.hours, trainToRemove.departureTime.minutes);
+	printf("Arrival Time\t\t> %02d:%02d\n", trainToRemove.arrivalTime.hours, trainToRemove.arrivalTime.minutes);
+	do {
+		printf("Confirm to remove? (Y/N) > ");
+		rewind(stdin);
+		scanf("%c", &confirm); 
+		confirm = toupper(confirm); 
+	} while (confirm != 'N' && confirm != 'Y');
+	
+	if (confirm == 'Y') {
+		fclose(rPtr);
+
+		remove(filepath);
+		printf("Succesfully remove [%s]", filepath);
+	}
+	else {
+		fclose(rPtr);
+		printf("Remove aborted\n");
+	}
+
+
+
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+	printf("Continuing...\n");
+
+	return(0);
+};
 
