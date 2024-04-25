@@ -8,8 +8,8 @@
 
 #pragma warning(disable:4996)
 
-#define MAIN_MENU_OPTION_SIZE 3
-const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Add Train", "Ticket Booking" };
+#define MAIN_MENU_OPTION_SIZE 2
+const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "trainScheduling" };
 
 int main(void) {
 	int menuChoice;
@@ -29,7 +29,7 @@ int main(void) {
 			staffMenu();
 			break;
 		case 2:
-			addTrain();
+			trainSchedulingModule();
 			break;
 		case 3:
 			ticketBookingMenu();

@@ -10,13 +10,15 @@
 #pragma warning(disable:4996)
 
 #define STAFF_MENU_OPTION_SIZE 4
-const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Manage Accounts", "Generate Report" };
+const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Manage Accounts", "Generate Staff Report" };
 #define STAFF_EDIT_OPTIONS_SIZE 5
 const char* STAFF_EDIT_OPTIONS[STAFF_EDIT_OPTIONS_SIZE] = { "IC", "Name", "Gender", "Phone Number", "Email" };
 #define STAFF_EDIT_OPTIONS_ADMIN_SIZE 8
 const char* STAFF_EDIT_OPTIONS_ADMIN[STAFF_EDIT_OPTIONS_ADMIN_SIZE] = { "IC", "Name", "Gender", "Phone Number", "Email", "Salary", "Employment Type", "Admin Status" };
 #define MANAGE_ACCOUNTS_OPTIONS_SIZE 5
 const char* MANAGE_ACCOUNTS_OPTIONS[MANAGE_ACCOUNTS_OPTIONS_SIZE] = { "List Staff Accounts", "Create Staff Account", "View Staff Account", "Edit Staff Account", "Delete Staff Account" };
+
+int staffCountFM[2], totalSalary, employmentTypeCountFTPT[2];
 
 int readStaffInfoFromFile(const char* staffID, Staff* staffReadInto) {
 	FILE* staffFP;
@@ -137,6 +139,20 @@ int inputStaffInfo(Staff* staff) {
 		if (scanf("%6[^\n]", &staff->staffRecovery) != 1) continue;
 		if (validateRecoveryPIN(staff->staffRecovery)) break;
 	} while (printf("Invalid recovery PIN, please try again.\n"));
+
+	return(0);
+}
+
+int displaySimplifiedStaffInfo(const char* filepath) {
+	// Read data from file
+	Staff staffToDisplay = { 0 };
+	FILE* staffFP;
+	staffFP = fopen(filepath, "rb");
+	fread(&staffToDisplay, sizeof(Staff), 1, staffFP);
+	fclose(staffFP);
+
+	// Print staff data
+	printf("%-8s|%-40s|%-20s|%-40s\n", staffToDisplay.staffID, staffToDisplay.staffName, staffToDisplay.staffPhone, staffToDisplay.staffEmail);
 
 	return(0);
 }
@@ -497,6 +513,50 @@ int deleteStaffAccount(const Staff* currentStaff) {
 	return(0);
 }
 
+int analyzeStaffFiles(const char* filepath) {
+	// Read data from file
+	Staff tempStaff = { 0 };
+	FILE* staffFP;
+	staffFP = fopen(filepath, "rb");
+	fread(&tempStaff, sizeof(Staff), 1, staffFP);
+	fclose(staffFP);
+
+	switch (tempStaff.staffGender)
+	{
+	case 'F':
+		staffCountFM[0]++;
+		break;
+	case 'M':
+		staffCountFM[1]++;
+	default:
+		break;
+	}
+
+	if (strcmp(tempStaff.employmentType, "FT") == 0) employmentTypeCountFTPT[0]++;
+	if (strcmp(tempStaff.employmentType, "PT") == 0) employmentTypeCountFTPT[1]++;
+
+	totalSalary += tempStaff.salary;
+
+	return(0);
+}
+
+int generateStaffReport() {
+	system("cls");
+	printf("Staff report:\n");
+	printf("==================================================\n");
+	printf("Total staff count\t> %d\n", staffCountFM[0] + staffCountFM[1]);
+	printf("\n");
+	printf("\tFemale\t\t> %d\n", staffCountFM[0]);
+	printf("\tMale\t\t> %d\n", staffCountFM[1]);
+	printf("\n");
+	printf("\tFull-time\t> %d\n", employmentTypeCountFTPT[0]);
+	printf("\tPart-time\t> %d\n", employmentTypeCountFTPT[1]);
+	printf("\n");
+	printf("Average salary\t> RM%.2f\n", (float) totalSalary / (staffCountFM[0] + staffCountFM[1]));
+
+	return(0);
+}
+
 int manageAccountsSubmenu(const Staff* currentStaff) {
 	if (!currentStaff->isAdmin) {
 		system("cls");
@@ -518,6 +578,14 @@ int manageAccountsSubmenu(const Staff* currentStaff) {
 			return(0);
 			break;
 		case 1: // List Staff Accounts
+			system("cls");
+			printf("%-8s|%-40s|%-20s|%-40s\n", "ID", "Name", "Phone No.", "Email");
+			printf("%-8s|%-40s|%-20s|%-40s\n", "========", "========================================", "====================", "========================================");
+			getFilesFromDirectory("data\\bin\\staff", *displaySimplifiedStaffInfo);
+			printf("%-8s|%-40s|%-20s|%-40s\n", "========", "========================================", "====================", "========================================");
+			printf("\nPress enter to continue.");
+			rewind(stdin);
+			if (getc(stdin) == 0); //?????
 			break;
 		case 2: // Create Staff Account
 			createStaff();
@@ -609,6 +677,23 @@ int staffMenu() {
 			break;
 		case 3: // Manage Accounts (Admin only)
 			manageAccountsSubmenu(&currentStaff);
+			break;
+		case 4: // Generate Staff Report (Admin only)
+		{
+			staffCountFM[0] = 0;
+			staffCountFM[1] = 0;
+			totalSalary = 0;
+			employmentTypeCountFTPT[0] = 0;
+			employmentTypeCountFTPT[1] = 0;
+
+			getFilesFromDirectory("data\\bin\\staff", *analyzeStaffFiles);
+
+			generateStaffReport();
+			printf("\nPress enter to go back.");
+			rewind(stdin);
+			if (getc(stdin) == 0); //?????
+			break;
+		}
 		default:
 			break;
 		}
