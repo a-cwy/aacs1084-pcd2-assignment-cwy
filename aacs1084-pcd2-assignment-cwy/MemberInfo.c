@@ -1,11 +1,12 @@
-#include"Util.c"
+#include "Util.h"
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<time.h>
-#include<ctype.h>
-#include<string.h>
-#include<stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+
 #pragma warning(disable:4996)
 
 typedef struct {
