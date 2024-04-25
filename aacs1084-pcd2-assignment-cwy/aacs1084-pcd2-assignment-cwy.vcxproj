@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StaffInfo.h" />
+    <ClInclude Include="TicketBooking.h" />
     <ClInclude Include="TrainSchedule.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
