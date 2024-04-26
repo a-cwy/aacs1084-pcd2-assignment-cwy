@@ -1,5 +1,6 @@
 #include "Util.h"
 #include "StaffInfo.h"
+#include "MemberInfo.h"
 #include "TrainSchedule.h"
 #include "TicketBooking.h"
 
@@ -8,8 +9,8 @@
 
 #pragma warning(disable:4996)
 
-#define MAIN_MENU_OPTION_SIZE 2
-const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "trainScheduling" };
+#define MAIN_MENU_OPTION_SIZE 4
+const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Member Login","Member Registration","trainScheduling"};
 
 int main(void) {
 	int menuChoice;
@@ -29,9 +30,15 @@ int main(void) {
 			staffMenu();
 			break;
 		case 2:
-			trainSchedulingModule();
+			memberLogin();
 			break;
 		case 3:
+			memberRegistration();
+			break;
+		case 4:
+			trainSchedulingModule();
+			break;
+		case 5:
 			ticketBookingMenu();
 			break;
 		default:
