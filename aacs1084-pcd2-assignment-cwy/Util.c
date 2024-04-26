@@ -19,7 +19,7 @@ int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* fi
 	// Convert searchDir to wchar_t
 	wchar_t wSearchDir[1024];
 	mbstowcs(wSearchDir, cSearchDir, 1024);
-	
+
 	WIN32_FIND_DATA file;
 	HANDLE searchHandle = NULL;
 	wchar_t searchPath[2048];
@@ -33,7 +33,7 @@ int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* fi
 	do {
 		// First two files always "." and ".."
 		if (wcscmp(file.cFileName, L".") == 0 || wcscmp(file.cFileName, L"..") == 0) continue;
-		
+
 		// Get filepath of first file in searchDir
 		wsprintf(searchPath, L"%s\\%s", wSearchDir, file.cFileName);
 
@@ -44,7 +44,7 @@ int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* fi
 		char filepath[2048];
 		wcstombs(filepath, &searchPath, 2048);
 		(*callback)(filepath);
-		
+
 	} while (FindNextFile(searchHandle, &file));
 
 	FindClose(searchHandle);
@@ -56,7 +56,7 @@ int getFilesFromDirectory(const char* cSearchDir, int (*callback)(const char* fi
 // Menu
 //
 
-int displayMenu(const char *menuOptions[], int optionsCount) {
+int displayMenu(const char* menuOptions[], int optionsCount) {
 	//Generate and print menu
 	printf("==================================================\n");
 	printf("0\t| Exit/Back\n");
@@ -72,7 +72,7 @@ int displayMenu(const char *menuOptions[], int optionsCount) {
 	{
 		printf("> ");
 		rewind(stdin);
-		if(scanf("%d", &choice) == 0) continue;
+		if (scanf("%d", &choice) == 0) continue;
 	} while (choice < 0 || choice > optionsCount);
 
 	return(choice);
@@ -181,5 +181,24 @@ bool validateTime(const int* hours, const int* minutes) {
 
 bool validateMemberPassword(const char* password) {
 	if (strlen(password) < 8 || strlen(password) > 20) return(false);
+	return(true);
+}
+
+bool validateCardNumber(const char* cardNumber) {
+	for (int i = 0;i < 20;i++) {
+		if (i == 4 || i == 8 || i == 12) {
+			if (cardNumber[i] != ' ') return(false);
+			continue;
+		}
+		if (!isdigit(cardNumber[i])) return(false);
+	}
+	return(true);
+}
+
+bool validatePin(const char* pin) {
+	if (strlen(pin) < 6 || strlen(pin) > 6) return (false);
+	for (int i = 0;i < 6;i++) {
+		if (!isdigit(pin[i])) return(false);
+	}
 	return(true);
 }

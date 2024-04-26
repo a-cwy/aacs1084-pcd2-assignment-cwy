@@ -42,3 +42,9 @@ bool validateTime(const int* hours, const int* minutes);
 
 // Member Password is between 8 and 20 characters, inclusive
 bool validateMemberPassword(const char* password);
+
+//Check 5,9,13 th must be space (format : 0000 0000 0000 0000)
+bool validateCardNumber(const char* cardNumber);
+
+//Length of pin should be 6 , must be integer
+bool validatePin(const char* pin);
