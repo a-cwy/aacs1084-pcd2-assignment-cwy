@@ -11,14 +11,21 @@
 
 //Menu for admin
 #define ATSCHE_MENU_OPTION_SIZE 4
-const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule(N/A)", "View All Train", "Generate Report(N/A)" };
+const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule(N/A)", "View All Train", "Generate Report" };
 
 //Menu for staff
 #define STSCHE_MENU_OPTION_SIZE 3
 const char* STSCHE_MENU_OPTIONS[STSCHE_MENU_OPTION_SIZE] = { "Manage Train Schedule", "View Train Timetable", "Search Train" };
 
-static int file_count = 0;
+//Menu for report
+#define TSCHER_MENU_OPTION_SIZE 2
+const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report"};
 
+
+
+int totalAvailableSeats;;
+int totalSeatsBooked;
+float occupancyRate;
 int trainSchedulingModule() {
 	int selection;
 	bool isAdmin;
@@ -75,7 +82,8 @@ int adminTSMenu(bool *admin) {
 		case 3:
 			viewAllTrain();
 			break;
-		case 4: //trainReports();
+		case 4: 
+			trainReports();
 			break;
 
 		default:break;
@@ -113,67 +121,6 @@ int staffTSMenu(bool *staff) {
 	
 	return (0);
 }
-
-// Function to check if a train ID exists in a file
-//bool id_exists_in_file(char* id) {
-//	FILE* file = fopen("trainSchedule.txt", "r");
-//	if (file == NULL) {
-//		// File doesn't exist, so ID definitely doesn't exist
-//		return false;
-//	}
-//
-//	Train train;
-//
-//	// Iterate through the file to find if the ID exists
-//	while (fscanf(file, "%[^|]|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%d\n", train.trainID, train.departureStation, train.arrivalStation,
-//		&train.departureTime.hours, &train.departureTime.minutes,
-//		&train.arrivalTime.hours, &train.arrivalTime.minutes, &train.coach) != EOF) {
-//		if (strncmp(train.trainID, id, MAX_ID_LEN) == 0) {
-//			fclose(file);
-//			return true; // ID found
-//		}
-//	}
-//
-//	fclose(file);
-//	return false; // ID not found
-//}
-
-//FILE* create_train_file(char* id) {
-//	bool previous_file_found = false;
-//	// Check current files number
-//	FILE* file_check;
-//	char filename[20];
-//	while (1) {
-//		sprintf(filename, "T100%d.txt", file_count + 1);
-//		file_check = fopen(filename, "r");
-//		if (file_check == NULL) {
-//			break;
-//		}
-//		fclose(file_check);
-//		file_count++;
-//		previous_file_found = true;
-//	}
-//
-//	for (int i = 1; i <= file_count; i++) {
-//		char filename[20];
-//		sprintf(filename, "T100%d.txt", i);
-//		if (id_exists_in_file(&filename, &id)) {
-//			printf("Error: ID already exists in file %s\n", filename);
-//			return NULL;
-//		}
-//	}
-//
-//	// Create file according to previous file number
-//	FILE* current_file;
-//	sprintf(filename, "T100%d.txt", file_count + 1);
-//	current_file = fopen(filename, "w");
-//	if (current_file == NULL) {
-//		printf("Error creating Train file %s\n", filename);
-//		return NULL;
-//	}
-//	printf("%s created\n", filename);
-//	return current_file;
-//}
 
 int manageTrain(bool *admin) {
 
@@ -810,7 +757,7 @@ int searchTrain() {
 		printf("Arrival Station\t\t> %s\n", trainToSearch.arrivalStation);
 		printf("Departure Time\t\t> %02d:%02d\n", trainToSearch.departureTime.hours, trainToSearch.departureTime.minutes);
 		printf("Arrival Time\t\t> %02d:%02d\n", trainToSearch.arrivalTime.hours, trainToSearch.arrivalTime.minutes);
-		seatsStatus(filepath);
+		availableSeats(filepath);
 
 		printf("\nSearch another?(Y/N)> ");
 		rewind(stdin);
@@ -845,11 +792,11 @@ int viewAllTrain() {
 			&trainSch.arrivalTime.hours,
 			&trainSch.arrivalTime.minutes);
 
-		int availableSeats = seatsStatus(filepath);
+		int seatAvailable = availableSeats(filepath);
 		printf("%-10s%-20s%-20s\t   %02d:%02d             %02d:%02d\t\t %d\n", 
 			trainSch.trainID, trainSch.departureStation, trainSch.arrivalStation, 
 			trainSch.departureTime.hours, trainSch.departureTime.minutes, 
-			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes,availableSeats );
+			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes,seatAvailable );
 		trainCount++;
 		fclose(schPtr);
 		
@@ -929,7 +876,7 @@ int removeTrain() {
 	return(0);
 };
 
-int seatsStatus(const char *filepath) {
+int availableSeats(const char *filepath) {
 	FILE* fp;
 
 	Train train;
@@ -940,6 +887,7 @@ int seatsStatus(const char *filepath) {
 	int col;
 	int seatStatus;
 	int availableSeats = 0;
+
 
 	fp = fopen(filepath, "r");
 	if (fp == NULL) return;
@@ -983,3 +931,168 @@ int seatsStatus(const char *filepath) {
 	return availableSeats;
 }
 
+int bookedSeats(const char *filepath) {
+	
+	FILE* fp;
+
+	Train train;
+
+	int coachIndex;
+	char coachLetter;
+	int row;
+	int col;
+	int seatStatus;
+	int bookedSeats = 0;
+
+
+	fp = fopen(filepath, "r");
+	if (fp == NULL) return;
+
+	while (fscanf(fp, "%[^|]|%[^|]|%[^|]|%d:%d|%d:%d|",
+		train.trainID, train.departureStation, train.arrivalStation,
+		&train.departureTime.hours, &train.departureTime.minutes,
+		&train.arrivalTime.hours, &train.arrivalTime.minutes) == 7) {
+
+		//read seat availability for each coach
+		for (coachIndex = 0; coachIndex < 6; coachIndex++) {
+			fscanf(fp, "%c|", &coachLetter); //read coach letter
+
+			for (row = 0; row < 20; row++) { //read availability
+				for (col = 0; col < 4; col++) {
+					fscanf(fp, "%d|", &seatStatus);
+
+					train.coach[coachIndex].seats[row][col] = (seatStatus == 1);
+				}
+			}
+		}
+
+
+
+
+		for (int coachIndex = 0; coachIndex < 6; coachIndex++) {
+			for (int row = 0; row < 20; row++) {
+				for (int col = 0; col < 4; col++) {
+					if (train.coach[coachIndex].seats[row][col]) {
+						bookedSeats++;
+					}
+				}
+			}
+		}
+
+
+
+	}
+
+	fclose(fp);
+	return bookedSeats;
+	
+}
+
+int analyzeTrainFile(const char* filepath) {
+	// Read data from file
+	Train trainToAnalyze = { .coach = {0} };
+	FILE* trainFPtr;
+	trainFPtr = fopen(filepath, "r");
+	
+	
+	totalAvailableSeats += availableSeats(filepath);
+	totalSeatsBooked += bookedSeats(filepath);
+
+
+	
+
+	return(0);
+}
+
+int generateOccupancyRate() {
+	system("cls");
+	printf("All Train Occupancy Rate Report:\n");
+	printf("==================================================\n");
+	printf("Total Seats For All Train\t> %d\n",totalAvailableSeats );
+	printf("\n");
+	printf("Total Booked Seats For All Train\t> %d\n",totalSeatsBooked);
+	printf("\n");
+	printf("Occupancy Rate for All Train\t> %.2f\n", occupancyRate);
+	printf("\n");
+	printf("==================================================\n");
+	
+
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+	printf("Continuing...\n");
+	return(0);
+}
+
+int generateSeatsAvailability(const char*filepath, Train *trainToReport) {
+	Train currentTrain;
+	int seatsAvailable = availableSeats(filepath);
+	int seatsBooked = bookedSeats(filepath);
+	float occupancyRate = seatsBooked / seatsAvailable;
+	system("cls");
+	printf("%s Seats Availability Report:\n", trainToReport->trainID);
+	printf("==================================================\n");
+	printf("Total Seats For %s \t> %d\n", trainToReport->trainID, seatsAvailable);
+	printf("\n");
+	printf("Total Booked Seats For %s\t> %d\n", trainToReport->trainID, seatsBooked);
+	printf("\n");
+	printf("Occupancy Rate for %s\t> %.2f\n", trainToReport->trainID, occupancyRate);
+	printf("\n");
+	printf("==================================================\n");
+
+
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+	printf("Continuing...\n");
+	return(0);
+
+}
+int trainReports() {
+	char filepath[128];
+	int choice;
+	Train trainToReport;
+	FILE* RpPtr;
+	while (1) {
+		system("cls");
+		printf("Train Reports\n");
+
+		choice = displayMenu(TSCHER_MENU_OPTIONS, TSCHER_MENU_OPTION_SIZE);
+
+		switch (choice) {
+		case 0:
+			return(0);
+			break;
+		case 1:
+			totalAvailableSeats = 0;
+			totalSeatsBooked = 0;
+			getFilesFromDirectory("data\\text\\trainSchedule", *analyzeTrainFile);
+			occupancyRate = totalSeatsBooked / totalAvailableSeats;
+			
+
+			generateOccupancyRate();
+			break;
+		case 2:
+			do {
+				printf("\tTrain ID\t\t> ");
+				rewind(stdin);
+				if (scanf("%5[^\n]", &trainToReport.trainID) != 1);
+				trainToReport.trainID[0] = toupper(trainToReport.trainID[0]);
+
+				// Check if ID exists
+				sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToReport.trainID);
+				if ((RpPtr = fopen(filepath, "r")) == NULL) continue;
+
+				if (validateTrainID(trainToReport.trainID)) break;
+			} while (printf("Train ID does not exist, please try again.\n"));
+			generateSeatsAvailability(filepath, &trainToReport);
+			break;
+		
+
+		default:break;
+		}
+	}
+
+	return(0);
+	
+};
