@@ -1067,7 +1067,7 @@ int trainReports() {
 			totalAvailableSeats = 0;
 			totalSeatsBooked = 0;
 			getFilesFromDirectory("data\\text\\trainSchedule", *analyzeTrainFile);
-			occupancyRate = totalSeatsBooked / totalAvailableSeats;
+			occupancyRate = (totalSeatsBooked / totalAvailableSeats)*100;
 			
 
 			generateOccupancyRate();
