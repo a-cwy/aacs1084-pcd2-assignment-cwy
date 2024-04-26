@@ -14,9 +14,7 @@ typedef struct Date {
 
 
 typedef struct Booking {
-	char bookingID[6];
-	char trainID[6];
-	Coach coach[6];
+	char bookingID[15];
 	struct Date bookingDate;
 	struct Date departureDate;
 	float price;
@@ -31,3 +29,4 @@ typedef struct Booking {
 */
 
 int ticketBookingMenu();
+int viewAllTrain();
