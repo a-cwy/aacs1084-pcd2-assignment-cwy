@@ -9,16 +9,24 @@
 #include<stdbool.h>
 #pragma warning(disable:4996)
 
+#define WALLET_MENU_OPTION_SIZE 3
+const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up","Member Level" };
+
+#define MEMBER_MENU_OPTION_SIZE 4
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account" };
+
 void generateMemberID(char* tempMemberID) {
 	FILE* memberFP;
 	bool check = false;//check is the id exist already?
 	while (!check) {
 		srand(time(NULL));
-		for (int j = 0; j < 10; j++) {
+		for (int j = 1; j < 5; j++) {
 			int num = rand() % 10;
 			tempMemberID[j] = '0' + num;
 		}
-		tempMemberID[10] = '\0';
+
+		tempMemberID[0] = 'M';
+		tempMemberID[5] = '\0';
 
 		char filepath[128] = "";
 		sprintf(filepath, "data/bin/member/%s.bin", tempMemberID);
@@ -83,7 +91,7 @@ int inputMemberInfo(MemberDetails* member) {
 	///member id
 	char tempMemberID[11];
 	// Generate member id
-	generateMemberID(&tempMemberID);
+	generateMemberID(tempMemberID);
 	strcpy(member->memberID, tempMemberID);
 
 
@@ -107,6 +115,10 @@ void displayMemberInfo(MemberDetails* member) {
 	printf("Member ID\t: %s\n", member->memberID);
 
 	printf("\n\n");
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+	
 
 	return;
 }
@@ -183,6 +195,7 @@ int editMemberInfo(const MemberDetails* member) {
 			case 1:
 				printf("Enter new name: ");
 				scanf(" %[^\n]", member->name);
+				printf("New Name record successfully !\n");
 				break;
 			case 2:
 				printf("Enter new Phone No.: ");
@@ -190,6 +203,7 @@ int editMemberInfo(const MemberDetails* member) {
 				scanf("%s", &tempPhoneNo);
 				if (validatePhoneNumber(tempPhoneNo)) {
 					strcpy(member->phoneNo, tempPhoneNo);
+					printf("New Phone No. record successfully !\n");
 					break;
 				}
 				else {
@@ -203,6 +217,7 @@ int editMemberInfo(const MemberDetails* member) {
 				scanf("%s", tempEmail);
 				if (validateEmail(tempEmail)) {
 					strcpy(member->email, tempEmail);
+					printf("New Email record successfully !\n");
 					break;
 				}
 				else {
@@ -216,6 +231,7 @@ int editMemberInfo(const MemberDetails* member) {
 				scanf("%s", tempPw);
 				if (validateEmail(tempPw)) {
 					strcpy(member->password, tempPw);
+					printf("New Password successfully !\n");
 					break;
 				}
 				else {
@@ -304,13 +320,20 @@ int payment(MemberDetails* member, double amount) {
 	printf("Payment Page\n");
 	printf("==================\n\n");
 
-	bool checkPayment = false;
-	selectBankCard(member, amount, &checkPayment);
-
-	if (checkPayment == true) {
+	if (member->walletBalance > amount) {
 		member->walletBalance -= amount;
 		writeFile(member);//update wallet balance
 		printf("Payment successfully!\n");
+	}
+	else {
+		bool checkPayment = false;
+		selectBankCard(member, amount, &checkPayment);
+
+		if (checkPayment == true) {
+			member->walletBalance -= amount;
+			writeFile(member);//update wallet balance
+			printf("Payment successfully!\n");
+		}
 	}
 
 }
@@ -385,37 +408,28 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 		printf("Invalid options.\nYou will exit now ...... \n");
 		break;
 	}
-		return 0;
+	return 0;
 }
 
 int walletMenu(MemberDetails* member) {
 
-	system("cls");
-	printf("Wallet Info\n");
-	printf("==================\n\n");
-	printf("Name \t\t: %s\n", member->name);
-	printf("MemberID \t: %s\n", member->memberID);
-	printf("Wallet Balance \t: %.2lf\n\n", member->walletBalance);
-
 	int select;
-	do {
-		printf("\n1.Top Up\n");
-		printf("2.Upgrade Member Level\n");
-		printf("0.Exit\n");
-		printf("\n\n");
 
-		printf("Select 0 - 2 : ");
-		scanf("%d", &select);
+	do {
+		system("cls");
+		select = displayMenu(WALLET_MENU_OPTIONS, WALLET_MENU_OPTION_SIZE);
 
 		switch (select) {
+		case 0:
+			break;
 		case 1:
-			walletTopUp(member);
-			select = 0;
+			viewMemberWallet(member);
 			break;
 		case 2:
+			walletTopUp(member);
+			break;
+		case 3:
 			memberLevel(member);
-			select = 0;
-		case 0:
 			break;
 		default:
 			printf("Invalid option\n");
@@ -425,22 +439,29 @@ int walletMenu(MemberDetails* member) {
 	printf("\n\nExit from Wallet Menu.\n\n");
 }
 
-int memberMenu(MemberDetails* member) {
+int viewMemberWallet(MemberDetails* member) {
 
 	system("cls");
+	printf("Member Wallet\n");
+	printf("==================\n\n");
+	printf("Name \t: %s\n", member->name);
+	printf("Member Id \t: %s\n", member->memberID);
+	printf("Wallet Balance \t: RM%s\n", member->walletBalance);
+
+	printf("\n\n");
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+
+}
+
+int memberMenu(MemberDetails* member) {
+
 	int select;
 	do {
-		printf("Member Menu\n");
-		printf("==================\n\n");
+		system("cls");
+		select = displayMenu(MEMBER_MENU_OPTIONS, MEMBER_MENU_OPTION_SIZE);
 
-		printf("1. View Member Info\n");
-		printf("2. Edit Member Info\n");
-		printf("3. View Member Wallet\n");
-		printf("4. Delete Member Account\n");
-		printf("0. Back to menu\n\n");
-
-		printf("Please enter (0-4) : ");
-		scanf("%d", &select);
 		switch (select) {
 		case 1:
 			displayMemberInfo(member);
@@ -470,7 +491,7 @@ int memberLogin() {
 
 	printf("Login\n");
 	printf("==================\n\n");
-	char memberID[10];
+	char memberID[6];
 	printf("Please enter your member ID \t: ");
 	scanf(" %s", memberID);
 
@@ -505,4 +526,3 @@ int memberLogin() {
 	}
 	return;
 }
-

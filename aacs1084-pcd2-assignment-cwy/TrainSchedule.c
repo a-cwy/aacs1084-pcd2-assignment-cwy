@@ -1048,6 +1048,7 @@ int generateSeatsAvailability(const char*filepath, Train *trainToReport) {
 	return(0);
 
 }
+
 int trainReports() {
 	char filepath[128];
 	int choice;
