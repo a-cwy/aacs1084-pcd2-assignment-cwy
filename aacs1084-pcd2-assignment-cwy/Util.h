@@ -48,3 +48,8 @@ bool validateCardNumber(const char* cardNumber);
 
 //Length of pin should be 6 , must be integer
 bool validatePin(const char* pin);
+
+//Check departure date
+bool isLeap(const int* year);
+
+bool validateDate(const int* day, const int* month, const int* year);
