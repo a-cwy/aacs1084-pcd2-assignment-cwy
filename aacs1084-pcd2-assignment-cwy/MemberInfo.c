@@ -332,50 +332,21 @@ int deleteMemberAccount(MemberDetails* member) {
 	return 0;
 }
 
-int memberLevel(MemberDetails* member) {
-
-	system("cls");
-	printf("Member Level\n");
-	printf("==================\n\n");
-
-	printf("Member Level : Lv%d\n\n\n", member->memberLv);
-
-	printf("Do you want to upgrade member Level ? (Y to continue) : ");
-	char choice;
-	scanf(" %c", &choice);
-	choice = toupper(choice);
-
-	double amount = 200;
-	if (choice == 'Y') {
-		system("cls");
-		bool checkPayment = false;
-		selectBankCard(member, amount, &checkPayment);
-		if (checkPayment == true) {
-			member->memberLv++;
-			printf("Payment successfully!\n");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
-		}
-	}
-
-}
-
-int payment(MemberDetails* member, double amount) {
+bool payment(MemberDetails* member, double amount) {
 
 	printf("Payment Page\n");
 	printf("==================\n\n");
 
-	if (member->walletBalance > amount) {
-		printf("Wallet balance is used !\n");
+	if (member->walletBalance >= amount) {
+		printf("Wallet balance is used!\n");
 		member->walletBalance -= amount;
-		writeFile(member);//update wallet balance
+		writeFile(member); // Update wallet balance
 		printf("Payment successfully!\n");
-		printf("\n\n");
-		printf("Press any key to continue...\n");
+		printf("Remaining wallet balance: %.2f\n", member->walletBalance);
+		printf("\nPress any key to continue...\n");
 		rewind(stdin);
 		getchar(); // Wait for a key press
+		return true;
 	}
 	else {
 		bool checkPayment = false;
@@ -387,6 +358,32 @@ int payment(MemberDetails* member, double amount) {
 			printf("Press any key to continue...\n");
 			rewind(stdin);
 			getchar(); // Wait for a key press
+		}
+		return checkPayment;
+	}
+}
+
+int memberLevel(MemberDetails* member) {
+
+	system("cls");
+	printf("Member Level\n");
+	printf("==================\n\n");
+
+	printf("Member Level : Lv%d\n\n\n", member->memberLv);
+
+	printf("Do you want to upgrade member Level (RM200) ? (Y to continue) : ");
+	char choice;
+	scanf(" %c", &choice);
+	choice = toupper(choice);
+
+	double amount = 200;
+	if (choice == 'Y') {
+		system("cls");
+
+		bool checkPayment = payment(member, amount);
+		if (checkPayment == true) {
+			member->memberLv++;
+			printf("Member Level upgrade !\n");
 		}
 	}
 
@@ -438,7 +435,7 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 			scanf(" %s", &pin);
 
 			if (strcmp(pin, member->pin) == 0) {
-				*checkPayment = true;
+				*checkPayment = true;//payment successful
 			}
 			else {
 				printf("Wrong pin number !\n");
@@ -458,10 +455,12 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 		break;
 	case 2:
 		printf("\nPlease enter card number (0000 0000 0000 0000)\t: ");
-		scanf(" %[^\n]", cardNumber);
+		rewind(stdin);
+		scanf("%[^\n]", cardNumber);
 
-		if (validateCardNumber(cardNumber)) {
+		//if (validateCardNumber(cardNumber)) {
 			printf("\nPlease enter 6-digit pin \t\t: ");
+			rewind(stdin);
 			scanf("%s", pin);
 
 			if (validatePin(pin)) {
@@ -477,15 +476,15 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 				rewind(stdin);
 				getchar(); // Wait for a key press
 			}
-		}
-		else {
-			printf("Wrong format for card number.\nYou will exit now ......\n");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
-		}
-		break;
+		//}
+		//else {
+		//	printf("Wrong format for card number.\nYou will exit now ......\n");
+		//	printf("\n\n");
+		//	printf("Press any key to continue...\n");
+		//	rewind(stdin);
+		//	getchar(); // Wait for a key press
+		//}
+		//break;
 	default:
 		printf("Invalid options.\nYou will exit now ...... \n");
 		printf("\n\n");
