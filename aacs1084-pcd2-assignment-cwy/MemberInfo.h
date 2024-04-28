@@ -9,7 +9,7 @@ typedef struct {
 	char phoneNo[13];//(012-34567890) or (011-12345678)
 	char email[100];//(abc@email.com)
 	char password[20];//%s (8 - 20 character)
-	char memberID[11];//random 10digit
+	char memberID[6];//random 5digit
 	double walletBalance;
 	char cardNumber[20];//(0000 0000 0000 0000)
 	char pin[7];//(6digit)

@@ -16,8 +16,17 @@ typedef struct Time { // 24h format
 	int minutes;
 } Time;
 
+
+typedef struct TDate {
+	int day;
+	int month;
+	int year;
+}TDate;
+
+
 typedef struct Train {
 	char trainID[6]; // T1001
+	TDate departureDate;
 	char departureStation[41];
 	char arrivalStation[41];
 	Time departureTime;

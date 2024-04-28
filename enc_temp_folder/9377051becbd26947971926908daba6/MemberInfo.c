@@ -89,7 +89,7 @@ int inputMemberInfo(MemberDetails* member) {
 	} while (printf("Length between 8 - 20\n"));
 
 	///member id
-	char tempMemberID[6];
+	char tempMemberID[11];
 	// Generate member id
 	generateMemberID(tempMemberID);
 	strcpy(member->memberID, tempMemberID);
@@ -118,7 +118,7 @@ void displayMemberInfo(MemberDetails* member) {
 	printf("Press any key to continue...\n");
 	rewind(stdin);
 	getchar(); // Wait for a key press
-
+	
 
 	return;
 }
@@ -238,6 +238,7 @@ int editMemberInfo(const MemberDetails* member) {
 					printf("Wrong format , please try again.\n");
 					break;
 				}
+
 				break;
 			case 0:
 				break;
@@ -271,7 +272,7 @@ int deleteMemberAccount(MemberDetails* member) {
 	char filepath[128] = "";
 	sprintf(filepath, "data/bin/member/%s.bin", member->memberID);
 
-	char tempPassword[21];
+	char tempPassword[10];
 	if (delete == 'Y') {
 		printf("\nPlease enter your password to permanently delete your account \t: ");
 		scanf(" %s", &tempPassword);
@@ -283,7 +284,7 @@ int deleteMemberAccount(MemberDetails* member) {
 			printf("Wrong password");
 		}
 	}
-	return 0;
+	return(0);
 }
 
 int memberLevel(MemberDetails* member) {
@@ -320,7 +321,6 @@ int payment(MemberDetails* member, double amount) {
 	printf("==================\n\n");
 
 	if (member->walletBalance > amount) {
-		printf("Wallet balcnace is used !\n");
 		member->walletBalance -= amount;
 		writeFile(member);//update wallet balance
 		printf("Payment successfully!\n");
@@ -381,17 +381,10 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 
 			if (strcmp(pin, member->pin) == 0) {
 				*checkPayment = true;
-				break;
 			}
-			else {
-				printf("Wrong pin number !\n");
-				break;
-			}
-			break;
 		}
 		else {
 			printf("You don't have a card yet !\n");
-			break;
 		}
 		break;
 	case 2:
@@ -408,7 +401,7 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 			writeFile(member);//bank card and pin is saved
 		}
 		else {
-			printf("Wrong format for pin.\nYou will exit now ......\n");
+			printf("Wrong format for pin.\nYpu will exit now ......\n");
 		}
 		break;
 	default:
@@ -427,6 +420,8 @@ int walletMenu(MemberDetails* member) {
 		select = displayMenu(WALLET_MENU_OPTIONS, WALLET_MENU_OPTION_SIZE);
 
 		switch (select) {
+		case 0:
+			break;
 		case 1:
 			viewMemberWallet(member);
 			break;
@@ -435,6 +430,9 @@ int walletMenu(MemberDetails* member) {
 			break;
 		case 3:
 			memberLevel(member);
+			break;
+		default:
+			printf("Invalid option\n");
 			break;
 		}
 	} while (select != 0);
@@ -446,7 +444,7 @@ int viewMemberWallet(MemberDetails* member) {
 	system("cls");
 	printf("Member Wallet\n");
 	printf("==================\n\n");
-	printf("Name \t\t: %s\n", member->name);
+	printf("Name \t: %s\n", member->name);
 	printf("Member Id \t: %s\n", member->memberID);
 	printf("Wallet Balance \t: RM%.2lf\n", member->walletBalance);
 
@@ -476,6 +474,12 @@ int memberMenu(MemberDetails* member) {
 			break;
 		case 4:
 			deleteMemberAccount(member);
+			break;
+		case 0:
+			//back to main menu  (select staff or member)
+			break;
+		default:
+			printf("Invalid options !");
 			break;
 		}
 	} while (select != 0);
