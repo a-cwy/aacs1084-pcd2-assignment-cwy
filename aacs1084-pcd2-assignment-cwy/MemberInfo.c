@@ -454,9 +454,6 @@ int memberMenu(MemberDetails* member) {
 		case 4:
 			deleteMemberAccount(member);
 			break;
-		case 0:
-			//back to main menu  (select staff or member)
-			break;
 		default:
 			printf("Invalid options !");
 			break;
