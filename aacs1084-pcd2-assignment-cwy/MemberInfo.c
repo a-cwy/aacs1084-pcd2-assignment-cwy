@@ -12,8 +12,8 @@
 #define WALLET_MENU_OPTION_SIZE 3
 const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up","Member Level" };
 
-#define MEMBER_MENU_OPTION_SIZE 4
-const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account" };
+#define MEMBER_MENU_OPTION_SIZE 5
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking"};
 
 void generateMemberID(char* tempMemberID) {
 	FILE* memberFP;
@@ -476,6 +476,9 @@ int memberMenu(MemberDetails* member) {
 			break;
 		case 4:
 			deleteMemberAccount(member);
+			break;
+		case 5:
+			ticketBookingMenu(member);
 			break;
 		}
 	} while (select != 0);
