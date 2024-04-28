@@ -115,6 +115,45 @@ bool saveToFile(const Booking bookings[], int numBookings, const char* filename)
     return true;
 }
 
+bool displayConfirmationMessage(const Train* train, int numBookings, updateCoach seatNum[]) {
+    double ticketPrice = 24.5;
+    double ticketPriceTotal = numBookings * ticketPrice;
+
+    printf("Train ID -> %s\n", train->trainID);
+    printf("Departure Date -> %02d/%02d/%04d\n", train->departureDate.day,
+        train->departureDate.month,
+        train->departureDate.year);
+    printf("Departure Station -> %s\n", train->departureStation);
+    printf("Arrival Station -> %s\n", train->arrivalStation);
+    printf("Departure Time -> %02d:%02d\n", train->departureTime.hours, train->departureTime.minutes);
+    printf("Arrival Time -> %02d:%02d\n", train->arrivalTime.hours, train->arrivalTime.minutes);
+    printf("Seat Selected :\n");
+
+    for (int i = 0; i < numBookings; i++) {
+        printf("Coach %c, Row %d, Col %d\n", seatNum[i].coach, seatNum[i].row, seatNum[i].col); 
+    }
+    printf("Price for single ticket -> RM%.2lf\n", ticketPrice);
+    printf("Total -> RM%.2lf\n", ticketPriceTotal);
+
+    int choice;
+
+    while(1) {
+        printf("\n");
+        printf("Press 0 to exit, press 1 to continue payment :\n");
+        scanf("%d", &choice);
+
+        if (choice == 0) {
+            return false;
+        }
+        else if (choice == 1) {
+            return true;
+        }
+        else {
+            printf("Enter 0 or 1 only!\n");
+        }
+    } 
+}
+
 Date getTodayDate() {
     Date today;
     time_t currentTime;
@@ -169,6 +208,8 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
         seatNum[i].row = 0;
         seatNum[i].col = 0;
     }
+
+    printf("Select your seat: \n");
 
     do {
         //validation for coach letter
@@ -238,6 +279,10 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
             } while (continueBooking != 'Y' && continueBooking != 'N');
 
             if (continueBooking == 'N') {
+                if (numBookings < 1) {
+                    printf("You need to select at least one seat to proceed.\n");
+                    continue;
+                }
                 break;
             }
         }
@@ -245,51 +290,52 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
 
     double ticketPrice = 24.5;
     double ticketPriceTotal = numBookings * ticketPrice;
-
-    printf("Price for single ticket -> RM%.2lf\n", ticketPrice);
-    printf("Total -> RM%.2lf\n", ticketPriceTotal);
-
     char status[10];
 
-    //make payment
-    do {
-        if (payment(member, ticketPriceTotal) == 1) {
-            strcpy(status, "Success");
-            break;
-        }
-        else
-            printf("Payment failed");
-    } while (payment(member, ticketPriceTotal) == 1);
+    if (displayConfirmationMessage(train, numBookings, seatNum) == 1) {
+        //make payment
+        do {
+            if (payment(member, ticketPriceTotal) == 1) {
+                strcpy(status, "Success");
+                break;
+            }
+            else
+                printf("Payment failed");
+        } while (payment(member, ticketPriceTotal) == 1);
 
-    //loop data into booking struct
-    for (int x = 0; x < numBookings; x++) {
-        bookings[x].bookingDate = todayDate;
-        bookings[x].departureDate = departureDate;
-        bookings[x].price = ticketPrice;
-        strcpy(bookings[x].paymentType, "Wallet Balance");
-        strcpy(bookings[x].status, status);
-        strcpy(bookings[x].memberID, member->memberID);
+        //loop data into booking struct
+        for (int x = 0; x < numBookings; x++) {
+            bookings[x].bookingDate = todayDate;
+            bookings[x].departureDate = departureDate;
+            bookings[x].price = ticketPrice;
+            strcpy(bookings[x].paymentType, "Wallet Balance");
+            strcpy(bookings[x].status, status);
+            strcpy(bookings[x].memberID, member->memberID);
+        }
+
+        //save to file then update the seat in train
+        if (saveToFile(bookings, numBookings, member->memberID)) {
+            //function update the train seats
+            updateTrainSeats(filepath, seatNum, numBookings);
+            printf("Booked successfully!\n");
+            return 0;
+        }
+
+        //incase cant save to file, prompt error
+        else {
+            printf("Error save to file.\n");
+            return 1;
+        }
+        return 0; 
     }
 
-    //save to file then update the seat in train
-    if (saveToFile(bookings, numBookings, member->memberID)) {
-        //function update the train seats
-        updateTrainSeats(filepath, seatNum, numBookings);
-        printf("Booked successfully!\n");
-
-        printf("\n\n");
-        printf("Press any key to continue...\n");
-        rewind(stdin);
-        getchar(); // Wait for a key press
-
+    else {
+        printf("Booking Failed!\n");
         return 0;
     }
 
-    //incase cant save to file, prompt error
-    else { 
-        printf("Error save to file.\n");
-        return 1; 
-    }
+
+    
 }
 
 void displaySelectedTrainInfo(const Train* train) {
@@ -299,14 +345,15 @@ void displaySelectedTrainInfo(const Train* train) {
     int col;
 
     //display train information
-    printf("Train ID> %s\n", train->trainID);
-    printf("Departure Date> %02d/%02d/%04d\n", train->departureDate.day,
+    printf("\n\n");
+    printf("Train ID: %s\n", train->trainID);
+    printf("Departure Date: %02d/%02d/%04d\n", train->departureDate.day,
         train->departureDate.month,
         train->departureDate.year);
-    printf("Departure Station > %s\n", train->departureStation);
-    printf("Arrival Station > %s\n", train->arrivalStation);
-    printf("Departure Time > %02d:%02d\n", train->departureTime.hours, train->departureTime.minutes);
-    printf("Arrival Time > %02d:%02d\n\n", train->arrivalTime.hours, train->arrivalTime.minutes);
+    printf("Departure Station: %s\n", train->departureStation);
+    printf("Arrival Station: %s\n", train->arrivalStation);
+    printf("Departure Time: %02d:%02d\n", train->departureTime.hours, train->departureTime.minutes);
+    printf("Arrival Time: %02d:%02d\n\n", train->arrivalTime.hours, train->arrivalTime.minutes);
 
     //display seat avaialbility
     for (coachIndex = 0; coachIndex < 6; coachIndex++) {
@@ -330,6 +377,8 @@ void displaySelectedTrainInfo(const Train* train) {
         }
     }
 
+    printf("\n\n");
+
     return;
 }
 
@@ -341,7 +390,7 @@ int bookTicket(MemberDetails* member) {
     Train train;
 
     do {
-        printf("Enter Train ID to view schedule > ");
+        printf("Enter Train ID to book > ");
         rewind(stdin);
         if (scanf("%5[^\n]", &train.trainID) != 1);
         train.trainID[0] = toupper(train.trainID[0]);
