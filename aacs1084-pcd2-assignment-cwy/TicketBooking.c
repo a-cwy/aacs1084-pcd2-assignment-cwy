@@ -1,6 +1,7 @@
 #include "Util.h"
 #include "TicketBooking.h"
 #include "TrainSchedule.h"
+#include "MemberInfo.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +11,111 @@
 #include <time.h>
 
 #pragma warning(disable:4996)
+
+void updateTrainSeats(char filepath[], updateCoach seatNum[], int numBookings) {
+
+    FILE* trainFP = fopen(filepath, "r");  
+
+    Train train;
+
+    if (trainFP == NULL) return;
+
+    int coachIndex;
+    char coachLetter;
+    int row;
+    int col;
+    int seatStatus;
+
+    while (fscanf(trainFP, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|",
+        train.trainID, &train.departureDate.day,
+        &train.departureDate.month,
+        &train.departureDate.year, train.departureStation, train.arrivalStation,
+        &train.departureTime.hours, &train.departureTime.minutes,
+        &train.arrivalTime.hours, &train.arrivalTime.minutes) == 10) {
+
+        //read seat availability for each coach
+        for (coachIndex = 0; coachIndex < 6; coachIndex++) {
+            fscanf(trainFP, "%c|", &coachLetter);
+
+            for (row = 0; row < 20; row++) {
+                for (col = 0; col < 4; col++) {
+                    fscanf(trainFP, "%d|", &seatStatus);
+                    train.coach[coachIndex].seats[row][col] = (seatStatus == 1);
+                }
+            }
+        }
+    }
+
+    fclose(trainFP);
+
+    // Update seats (loop for multiple bookings)
+    for (int i = 0; i < numBookings; i++) {
+        printf("Updating: Coach %c, Row %c, Col %c\n", seatNum[i].coach, seatNum[i].row, seatNum[i].col); // Debug
+
+        int coachIndex = seatNum[i].coach - 'A';
+        int rowIndex = seatNum[i].row - 1; // Adjust for 0-based indexing 
+        int colIndex = seatNum[i].col - 1;
+
+        printf("Calculated Indices: Coach %d, Row %d, Col %d\n", coachIndex, rowIndex, colIndex);  // Debug
+
+        if (coachIndex >= 0 && coachIndex < 6 && rowIndex >= 0 && rowIndex < 20 &&
+            colIndex >= 0 && colIndex < 4) {
+            train.coach[coachIndex].seats[rowIndex][colIndex] = true; 
+        } else {
+            printf("Error: Indices out of bounds.\n"); // Debug
+        }
+    } 
+
+    FILE* updateTrainFP = fopen(filepath, "w");
+
+    if (updateTrainFP == NULL) return;
+
+    fprintf(updateTrainFP, "%s|%02d/%02d/%04d|%s|%s|%02d:%02d|%02d:%02d|", // Note the '|' here
+        train.trainID, train.departureDate.day, train.departureDate.month,
+        train.departureDate.year, train.departureStation, train.arrivalStation,
+        train.departureTime.hours, train.departureTime.minutes,
+        train.arrivalTime.hours, train.arrivalTime.minutes);
+
+    for (int coachIndex = 0; coachIndex < 6; coachIndex++) {
+        fprintf(updateTrainFP, "%c|", 'A' + coachIndex);
+        for (int row = 0; row < 20; row++) {
+            for (int col = 0; col < 4; col++) {
+                fprintf(updateTrainFP, "%d|", train.coach[coachIndex].seats[row][col]);
+            }
+        }
+    }
+
+    fclose(updateTrainFP);
+    printf("Train seats updated!\n");
+    
+}
+
+bool saveToFile(const Booking bookings[], int numBookings, const char* filename) {
+    FILE* bookingFP;
+    char filepath[128] = "";
+    sprintf(filepath, "data/text/ticketBooking/%s.txt", filename);
+
+    bookingFP = fopen(filepath, "a");
+
+    if (bookingFP == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
+    for (int i = 0; i < numBookings; i++) {
+        fprintf(bookingFP, "%s|%d/%d/%d|%d/%d/%d|%.2f|%s|%s|%s\n",
+            bookings[i].bookingID,
+            bookings[i].bookingDate.day, bookings[i].bookingDate.month, bookings[i].bookingDate.year,
+            bookings[i].departureDate.day, bookings[i].departureDate.month, bookings[i].departureDate.year,
+            bookings[i].price,
+            bookings[i].paymentType,
+            bookings[i].status,
+            bookings[i].memberID);
+    }
+
+    fclose(bookingFP);
+    return true;
+}
 
 bool getDepartureDate(Date* departureDate, const Date* todayDate) {
     do {
@@ -69,6 +175,127 @@ bool isSeatAvailable(const Train* train, char coachLetter, int row, int col) {
     return train->coach[coachIndex].seats[row - 1][col - 1] == false;
 }
 
+int processBookings(Train* train, char* filepath, MemberDetails* member) {
+    Booking bookings[5];
+    updateCoach seatNum[5];
+    int numBookings = 0;
+    char coachLetterInput;
+    int rowInput;
+    int colInput;
+
+    for (int i = 0; i < 5; i++) {
+        seatNum[i].coach = '\0'; // Or some other default character
+        seatNum[i].row = 0;
+        seatNum[i].col = 0;
+    }
+
+    do {
+        //do validate later for this 3
+        printf("Enter coach letter (A-F): ");
+        scanf(" %c", &coachLetterInput);
+
+        printf("Enter row (1-20): ");
+        scanf("%d", &rowInput);
+
+        printf("Enter column (1-4): ");
+        scanf("%d", &colInput);
+
+        if (isSeatAvailable(train, coachLetterInput, rowInput, colInput)) {
+            //generate booking ID
+            sprintf(bookings[numBookings].bookingID, "%s-%c-%d-%d",
+                train->trainID, coachLetterInput, rowInput, colInput);
+
+            //ensure no duplicates 
+            bool isDuplicate = false;
+            for (int i = 0; i < numBookings; i++) {
+                if (strcmp(bookings[i].bookingID, bookings[numBookings].bookingID) == 0) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (!isDuplicate) {
+                numBookings++;
+                printf("Seat booked!\n");
+
+                seatNum[numBookings - 1].coach = coachLetterInput;
+                seatNum[numBookings - 1].row = rowInput;
+                seatNum[numBookings - 1].col = colInput;
+
+            }
+            else {
+                printf("Error: Duplicate booking.\n");
+            }
+        }
+        else {
+            printf("Seat not available.\n");
+        }
+
+        if (numBookings < 5) {
+            char continueBooking;
+            do {
+                printf("Add another ticket (Y/N)? >");
+                scanf(" %c", &continueBooking);
+                continueBooking = toupper(continueBooking);
+            } while (continueBooking != 'Y' && continueBooking != 'N');
+
+            if (continueBooking == 'N') {
+                break;
+            }
+        }
+    } while (numBookings < 5);
+
+    //debug
+    for (int i = 0; i < numBookings; i++) {
+        printf("%s \n", bookings[i].bookingID);
+    }
+
+    //debug 
+    for (int z = 0; z < numBookings; z++) {
+        printf("%c %d %d \n", seatNum[z].coach, seatNum[z].row, seatNum[z].col);
+    }
+
+    double ticketPrice = 24.5;
+    double ticketPriceTotal = numBookings * ticketPrice;
+
+    printf("Price for single ticket -> RM%.2lf\n", ticketPrice);
+    printf("Total -> RM%.2lf\n", ticketPriceTotal);
+
+    //payment(member, ticketPriceTotal);
+
+    Date departureDate;
+
+    departureDate.day = train->departureDate.day;
+    departureDate.month = train->departureDate.month;
+    departureDate.year = train->departureDate.year;
+
+    Date todayDate = getTodayDate();
+
+    printf("Today date: %d/%d/%d\n", todayDate.day, todayDate.month, todayDate.year);
+    printf("Departure date: %d/%d/%d\n", departureDate.day, departureDate.month, departureDate.year);
+
+
+    for (int x = 0; x < numBookings; x++) {
+        bookings[x].bookingDate = todayDate;
+        bookings[x].departureDate = departureDate;
+        bookings[x].price = ticketPrice;
+        strcpy(bookings[x].paymentType, "Wallet Balance");
+        strcpy(bookings[x].status, "Success");
+        strcpy(bookings[x].memberID, member->memberID);
+    }
+
+    if (saveToFile(bookings, numBookings, member->memberID)) {
+        printf("Bookings written to file successfully!\n");
+        updateTrainSeats(filepath, seatNum, numBookings);
+        printf("\n\n\n\n");
+        return 0; // Success
+    }
+    else { //debug
+        printf("Error save to file.\n");
+        return 1; // Example error code 
+    }
+}
+
 void displaySelectedTrainInfo(const Train* train) {
     int coachIndex;
     char coachLetter;
@@ -77,6 +304,9 @@ void displaySelectedTrainInfo(const Train* train) {
 
     //display train information
     printf("Train ID> %s\n", train->trainID);
+    printf("Departure Date> %02d/%02d/%04d\n", train->departureDate.day,
+        train->departureDate.month,
+        train->departureDate.year);
     printf("Departure Station > %s\n", train->departureStation);
     printf("Arrival Station > %s\n", train->arrivalStation);
     printf("Departure Time > %02d:%02d\n", train->departureTime.hours, train->departureTime.minutes);
@@ -109,7 +339,7 @@ void displaySelectedTrainInfo(const Train* train) {
 }
 
 //function to display selected train schedule
-int bookTicket() {
+int bookTicket(MemberDetails* member) {
     FILE* trainFP;
 
     char filepath[100];
@@ -124,7 +354,8 @@ int bookTicket() {
 
         // Check if ID exists
         sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", train.trainID);
-        if ((trainFP = fopen(filepath, "r")) == NULL) continue;
+        trainFP = fopen(filepath, "r");
+        if (trainFP == NULL) continue;
 
         if (validateTrainID(train.trainID)) break;
 
@@ -140,10 +371,12 @@ int bookTicket() {
     int seatStatus;
 
     //read train info
-    while (fscanf(trainFP, "%[^|]|%[^|]|%[^|]|%d:%d|%d:%d|",
-        train.trainID, train.departureStation, train.arrivalStation,
+    while (fscanf(trainFP, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|",
+        train.trainID, &train.departureDate.day,
+        &train.departureDate.month,
+        &train.departureDate.year, train.departureStation, train.arrivalStation,
         &train.departureTime.hours, &train.departureTime.minutes,
-        &train.arrivalTime.hours, &train.arrivalTime.minutes) == 7) {
+        &train.arrivalTime.hours, &train.arrivalTime.minutes) == 10) {
 
         //read seat availability for each coach
         for (coachIndex = 0; coachIndex < 6; coachIndex++) {
@@ -159,88 +392,17 @@ int bookTicket() {
 
         displaySelectedTrainInfo(&train);
 
-        Booking bookings[5];
-        int numBookings = 0;
-        char coachLetterInput;
-        int rowInput;
-        int colInput;
-
-        do {
-            //do validate later for this 3
-            printf("Enter coach letter (A-F): ");
-            scanf(" %c", &coachLetterInput);
-
-            printf("Enter row (1-20): ");
-            scanf("%d", &rowInput);
-
-            printf("Enter column (1-4): ");
-            scanf("%d", &colInput);
-
-            if (isSeatAvailable(&train, coachLetterInput, rowInput, colInput)) {
-                //generate booking ID
-                sprintf(bookings[numBookings].bookingID, "%s-%c-%d-%d",
-                    train.trainID, coachLetterInput, rowInput, colInput);
-
-                //ensure no duplicates 
-                bool isDuplicate = false;
-                for (int i = 0; i < numBookings; i++) {
-                    if (strcmp(bookings[i].bookingID, bookings[numBookings].bookingID) == 0) {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-
-                if (!isDuplicate) {
-                    numBookings++;
-                    printf("Seat booked!\n");
-                }
-                else {
-                    printf("Error: Duplicate booking.\n");
-                }
-            }
-            else {
-                printf("Seat not available.\n");
-            }
-
-            if (numBookings < 5) {
-                char continueBooking;
-                do {
-                    printf("Add another ticket (Y/N)? >");
-                    scanf(" %c", &continueBooking);
-                    continueBooking = toupper(continueBooking); 
-                } while (continueBooking != 'Y' && continueBooking != 'N');
-
-                if (continueBooking == 'N') {
-                    break; 
-                }
-            }
-        } while (numBookings < 5 );
-
-        for (int i = 0; i < numBookings; i++) {
-            printf("%s \n", bookings[i].bookingID);
+        if (processBookings(&train, filepath, member) != 0) {
+            printf("Error processing bookings.\n");
         }
-
-
-        Date departureDate, todayDate = getTodayDate();
-        getDepartureDate(&departureDate, &todayDate);
-
-        printf("Today date: %d/%d/%d\n", todayDate.day, todayDate.month, todayDate.year);
-        printf("Departure date: %d/%d/%d\n", departureDate.day, departureDate.month, departureDate.year);
-
-
     }
 
     fclose(trainFP);
-
-    
-
-    printf("Price for ");
     return(0);
 }
 
 //page to display ticket booking menu
-int ticketBookingMenu() {
-
+int ticketBookingMenu(MemberDetails* member) {
 	int choice;
 
 	do
@@ -248,7 +410,7 @@ int ticketBookingMenu() {
 		printf("Welcome to Ticket Booking Page: \n");
 		printf("1. Display Available Train Schedule \n");
 		printf("2. Book Ticket\n");
-		printf("3.  \n");
+		printf("3. Refund Ticket\n");
 		printf("4. Exit \n");
 		printf("Enter your choice :");
 
@@ -264,7 +426,7 @@ int ticketBookingMenu() {
 			break;
 		}
 		case 2:
-            bookTicket();
+            bookTicket(member);
 			break;
 		case 3:
 

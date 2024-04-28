@@ -6,17 +6,23 @@
 // Structures
 */
 
-typedef struct Date {
+typedef struct {
 	int day;
 	int month;
 	int year;
 } Date;
 
+typedef struct {
+	char coach;
+	int row; 
+	int col;
+} updateCoach;
+
 
 typedef struct Booking {
 	char bookingID[15];
-	struct Date bookingDate;
-	struct Date departureDate;
+	Date bookingDate;
+	Date departureDate;
 	float price;
 	char paymentType[20];
 	char status[10];

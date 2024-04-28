@@ -20,3 +20,6 @@ typedef struct {
 // Menu function for member
 int memberLogin();
 int memberRegistration();
+
+//for ticketBooking module to call function
+int payment(MemberDetails* member, double amount);
