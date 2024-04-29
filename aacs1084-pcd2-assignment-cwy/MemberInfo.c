@@ -13,7 +13,7 @@
 const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up","Member Level" };
 
 #define MEMBER_MENU_OPTION_SIZE 5
-const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking"};
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking" };
 
 int memberRegistration() {
 
@@ -456,9 +456,9 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 	case 2:
 		printf("\nPlease enter card number (0000 0000 0000 0000)\t: ");
 		rewind(stdin);
-		scanf("%[^\n]", cardNumber);
-
-		//if (validateCardNumber(cardNumber)) {
+		scanf("%19[^\n]", cardNumber);
+		
+		if (validateCardNumber(&cardNumber)) {
 			printf("\nPlease enter 6-digit pin \t\t: ");
 			rewind(stdin);
 			scanf("%s", pin);
@@ -476,7 +476,7 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 				rewind(stdin);
 				getchar(); // Wait for a key press
 			}
-		//}
+		}
 		//else {
 		//	printf("Wrong format for card number.\nYou will exit now ......\n");
 		//	printf("\n\n");
@@ -484,7 +484,7 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 		//	rewind(stdin);
 		//	getchar(); // Wait for a key press
 		//}
-		//break;
+		break;
 	default:
 		printf("Invalid options.\nYou will exit now ...... \n");
 		printf("\n\n");

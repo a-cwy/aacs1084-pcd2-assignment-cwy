@@ -22,4 +22,4 @@ int memberLogin();
 int memberRegistration();
 
 //for ticketBooking module to call function
-int payment(MemberDetails* member, double amount);
+bool payment(MemberDetails* member, double amount);
