@@ -167,6 +167,9 @@ int memberMenu(MemberDetails* member) {
 		case 4:
 			deleteMemberAccount(member);
 			break;
+		case 5:
+			ticketBookingMenu(member);
+			break;
 		default:
 			break;
 		}

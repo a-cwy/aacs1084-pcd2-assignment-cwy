@@ -34,5 +34,5 @@ typedef struct Booking {
 // Functions
 */
 
-int ticketBookingMenu();
+int ticketBookingMenu(member);
 int viewAllTrain();
