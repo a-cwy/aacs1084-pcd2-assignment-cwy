@@ -12,8 +12,178 @@
 
 #pragma warning(disable:4996)
 
-#define TICKET_MENU_OPTION_SIZE 4
-const char* TICKET_MENU_OPTIONS[TICKET_MENU_OPTION_SIZE] = { "Display All Train Schedule", "Book Ticket", "View Ticket", "Refund Ticket" };
+#define TICKET_MENU_OPTION_SIZE 5
+const char* TICKET_MENU_OPTIONS[TICKET_MENU_OPTION_SIZE] = { "Display All Train Schedule", "Book Ticket", 
+"View All Ticket", "Search Ticket" ,"Refund Ticket" };
+
+bool validateBookingID(const char* bookingID) {
+    // Check overall length
+    int len = 0;
+    while (bookingID[len] != '\0') {
+        if (++len > 13) { // 13 characters in format "T9999-F-20-04"
+            return false;
+        }
+    }
+    if (len != 13) {
+        return false;
+    }
+
+    // Validate individual components
+    if (!((bookingID[0] == 'T') && isdigit(bookingID[1]) && isdigit(bookingID[2]) && isdigit(bookingID[3]) && isdigit(bookingID[4]) && (bookingID[5] == '-'))) {
+        return false;
+    }
+    if (!((bookingID[6] >= 'A' && bookingID[6] <= 'F') && (bookingID[7] == '-'))) {
+        return false;
+    }
+    if (!((isdigit(bookingID[8]) && isdigit(bookingID[9]) && (bookingID[8] <= '2') && (bookingID[10] == '-')))) {
+        return false;
+    }
+    if (!((isdigit(bookingID[11]) && isdigit(bookingID[12]) && (bookingID[11] == '0') && (bookingID[12] >= '1' && bookingID[12] <= '4')))) {
+        return false;
+    }
+
+    // All checks passed
+    return true;
+}
+
+int searchTicket(MemberDetails* member) {
+    system("cls");
+
+    FILE* searchFP;
+    
+    char filepath[100];
+    char continueSearch;
+    bool found = false;
+
+    sprintf(filepath, "data/text/ticketBooking/%s.txt", member->memberID);
+
+    searchFP = fopen(filepath, "r");
+
+    //check whether there is data or not
+    if (searchFP == NULL) {
+        printf("No data available\n");
+        printf("\n\n");
+        printf("Press any key to continue...\n");
+        rewind(stdin);
+        getchar(); // Wait for a key press
+        return;
+    }
+
+    Booking searchBooking;
+    Booking booking;
+
+    
+    do {
+        found = false;
+
+        do {
+            //booking id format : TXXXX-A-XX-XX
+            printf("Enter Booking ID to search (format : TXXXX-A-XX-XX) : ");
+            rewind(stdin);
+
+            if (scanf("%13[^\n]", &searchBooking.bookingID) != 1);
+            searchBooking.bookingID[0] = toupper(searchBooking.bookingID[0]);
+
+            if (validateBookingID(searchBooking.bookingID)) break;
+
+        } while (printf("Invalid Format for Booking ID, please try again.\n"));
+
+
+        rewind(searchFP); 
+        while (fscanf(searchFP, "%[^|]|%02d/%02d/%04d|%02d/%02d/%04d|%f|%[^|]|%[^|]|%s\n",
+            booking.bookingID, &booking.bookingDate.day,
+            &booking.bookingDate.month, &booking.bookingDate.year,
+            &booking.departureDate.day, &booking.departureDate.month,
+            &booking.departureDate.year, &booking.price, booking.paymentType,
+            booking.status, booking.memberID) != EOF) {
+
+            if (strcmp(booking.bookingID, searchBooking.bookingID) == 0) {
+                found = true;
+                printf("\n");
+                printf("Booking ID: %s\n", booking.bookingID);
+                printf("Booking Date: %02d/%02d/%04d\n", booking.bookingDate.day,
+                    booking.bookingDate.month, booking.bookingDate.year);
+                printf("Departure Date: %02d/%02d/%04d\n", booking.departureDate.day,
+                    booking.departureDate.month, booking.departureDate.year);
+                printf("Price: %.2f\n", booking.price);
+                printf("Payment Type: %s\n", booking.paymentType);
+                printf("Status: %s\n", booking.status);
+                printf("Member ID: %s\n", booking.memberID);
+                printf("\n");
+            }
+        } 
+
+        if (!found) {
+            printf("No matching booking record found.\n");
+        }
+        
+        do {
+            printf("Search another Booking ID? (Y/N)? >");
+            scanf(" %c", &continueSearch);
+            continueSearch = toupper(continueSearch);
+        } while (continueSearch != 'Y' && continueSearch != 'N');
+
+        if (continueSearch == 'N') {
+            break;
+        }
+    } while (continueSearch != 'N');
+}
+
+//got formatting need to do for this function
+int viewAllTickets(MemberDetails* member) {
+    system("cls");
+
+    FILE* bookingFP;
+
+    Booking booking;
+
+    char filepath[100];
+
+    sprintf(filepath, "data/text/ticketBooking/%s.txt", member->memberID);
+
+    bookingFP = fopen(filepath, "r");
+
+    //check whether there is data or not
+    if (bookingFP == NULL) {
+        printf("No data available\n");
+        printf("\n\n");
+        printf("Press any key to continue...\n");
+        rewind(stdin);
+        getchar(); // Wait for a key press
+        return;
+    }
+
+    //formatting will done later
+    /*printf("Tickets booked :\n");
+    printf("%-15s %-10s %-10s %-10s %-15s %-10s", "Booking ID", "Booking Date", "Departure Date", "Price",
+        "Payment Type", "Status");*/
+
+    while (fscanf(bookingFP, "%[^|]|%02d/%02d/%04d|%02d/%02d/%04d|%f|%[^|]|%[^|]|%s\n",
+        booking.bookingID, &booking.bookingDate.day,
+        &booking.bookingDate.month, &booking.bookingDate.year,
+        &booking.departureDate.day, &booking.departureDate.month,
+        &booking.departureDate.year, &booking.price, booking.paymentType,
+        booking.status, booking.memberID) != EOF) {
+
+        printf("Booking ID: %s\n", booking.bookingID);
+        printf("Booking Date: %02d/%02d/%04d\n", booking.bookingDate.day,
+            booking.bookingDate.month, booking.bookingDate.year);
+        printf("Departure Date: %02d/%02d/%04d\n", booking.departureDate.day,
+            booking.departureDate.month, booking.departureDate.year);
+        printf("Price: %.2f\n", booking.price);
+        printf("Payment Type: %s\n", booking.paymentType);
+        printf("Status: %s\n", booking.status);
+        printf("Member ID: %s\n", booking.memberID);
+        printf("\n");
+    }
+
+    printf("\n\n");
+    printf("Press any key to continue...\n");
+    rewind(stdin);
+    getchar(); // Wait for a key press
+
+    return 0;
+}
 
 void updateTrainSeats(char filepath[], updateCoach seatNum[], int numBookings) {
 
@@ -101,7 +271,7 @@ bool saveToFile(const Booking bookings[], int numBookings, const char* filename)
     }
 
     for (int i = 0; i < numBookings; i++) {
-        fprintf(bookingFP, "%s|%d/%d/%d|%d/%d/%d|%.2f|%s|%s|%s\n",
+        fprintf(bookingFP, "%s|%02d/%02d/%04d|%02d/%02d/%04d|%.2lf|%s|%s|%s\n",
             bookings[i].bookingID,
             bookings[i].bookingDate.day, bookings[i].bookingDate.month, bookings[i].bookingDate.year,
             bookings[i].departureDate.day, bookings[i].departureDate.month, bookings[i].departureDate.year,
@@ -119,6 +289,7 @@ bool displayConfirmationMessage(const Train* train, int numBookings, updateCoach
     double ticketPrice = 24.5;
     double ticketPriceTotal = numBookings * ticketPrice;
 
+    printf("\n\n");
     printf("Train ID -> %s\n", train->trainID);
     printf("Departure Date -> %02d/%02d/%04d\n", train->departureDate.day,
         train->departureDate.month,
@@ -241,7 +412,7 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
 
         if (isSeatAvailable(train, coachLetterInput, rowInput, colInput)) {
             //generate booking ID
-            sprintf(bookings[numBookings].bookingID, "%s-%c-%d-%d",
+            sprintf(bookings[numBookings].bookingID, "%s-%c-%02d-%02d",
                 train->trainID, coachLetterInput, rowInput, colInput);
 
             //ensure no duplicates 
@@ -333,9 +504,6 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
         printf("Booking Failed!\n");
         return 0;
     }
-
-
-    
 }
 
 void displaySelectedTrainInfo(const Train* train) {
@@ -383,6 +551,8 @@ void displaySelectedTrainInfo(const Train* train) {
 }
 
 int bookTicket(MemberDetails* member) {
+    system("cls");
+
     FILE* trainFP;
 
     char filepath[100];
@@ -451,7 +621,6 @@ int bookTicket(MemberDetails* member) {
     return(0);
 }
 
-//page to display ticket booking menu
 int ticketBookingMenu(MemberDetails* member) {
     int select;
     do {
@@ -463,18 +632,16 @@ int ticketBookingMenu(MemberDetails* member) {
             return 0;
             break;
         case 1:
-            system("cls");
             viewAllTrain();
-            system("cls");
             break;
         case 2:
-            system("cls");
             bookTicket(member);
-            system("cls");
             break;
         case 3:
+            viewAllTickets(member);
             break;
         case 4:
+            searchTicket(member);
             break;
         default:
             printf("SORRY INVALID CHOICE! \n");
