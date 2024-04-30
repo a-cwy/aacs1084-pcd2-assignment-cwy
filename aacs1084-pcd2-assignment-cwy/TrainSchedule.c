@@ -13,7 +13,7 @@
 
 //Menu for admin
 #define ATSCHE_MENU_OPTION_SIZE 4
-const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule(N/A)", "View All Train", "Generate Report" };
+const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule", "View All Train", "Generate Report" };
 
 //Menu for staff
 #define STSCHE_MENU_OPTION_SIZE 3
