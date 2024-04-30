@@ -1,5 +1,6 @@
-#include"Util.h"
-#include"MemberInfo.h"
+#include "Util.h"
+#include "TicketBooking.h"
+#include "MemberInfo.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -12,8 +13,8 @@
 #define WALLET_MENU_OPTION_SIZE 3
 const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up","Member Level" };
 
-#define MEMBER_MENU_OPTION_SIZE 5
-const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking" };
+#define MEMBER_MENU_OPTION_SIZE 6
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking","View Booking History" };
 
 int memberRegistration() {
 
@@ -170,6 +171,9 @@ int memberMenu(MemberDetails* member) {
 		case 5:
 			ticketBookingMenu(member);
 			break;
+		case 6:
+			//bookingHistory(member);
+			break;
 		default:
 			break;
 		}
@@ -190,10 +194,7 @@ int displayMemberInfo(MemberDetails* member) {
 	printf("Email\t\t: %s\n", member->email);
 	printf("Member ID\t: %s\n", member->memberID);
 
-	printf("\n\n");
-	printf("Press any key to continue...\n");
-	rewind(stdin);
-	getchar(); // Wait for a key press
+	keyPress();
 
 
 	return 0;
@@ -288,10 +289,7 @@ int editMemberInfo(const MemberDetails* member) {
 	else {
 		printf("Wrong password\n");
 
-		printf("\n\n");
-		printf("Press any key to continue...\n");
-		rewind(stdin);
-		getchar(); // Wait for a key press
+		keyPress();
 	}
 	return 0;
 }
@@ -319,23 +317,17 @@ int deleteMemberAccount(MemberDetails* member) {
 		if (strcmp(tempPassword, member->password) == 0) {
 			remove(filepath);
 			printf("Account deleted!\n");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
+			keyPress();
 		}
 		else {
 			printf("Wrong password");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
+			keyPress();
 		}
 	}
 	return 0;
 }
 
-bool payment(MemberDetails* member, double amount) {
+bool payment(MemberDetails* member, float amount) {
 
 	printf("Payment Page\n");
 	printf("==================\n\n");
@@ -346,9 +338,7 @@ bool payment(MemberDetails* member, double amount) {
 		writeFile(member); // Update wallet balance
 		printf("Payment successfully!\n");
 		printf("Remaining wallet balance: %.2f\n", member->walletBalance);
-		printf("\nPress any key to continue...\n");
-		rewind(stdin);
-		getchar(); // Wait for a key press
+		keyPress();
 		return true;
 	}
 	else {
@@ -357,10 +347,7 @@ bool payment(MemberDetails* member, double amount) {
 
 		if (checkPayment == true) {
 			printf("Payment successfully!\n");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
+			keyPress();
 		}
 		return checkPayment;
 	}
@@ -399,7 +386,7 @@ int walletTopUp(MemberDetails* member) {
 	printf("==================\n\n");
 	printf("Wallet Balance \t: %.2lf\n\n", member->walletBalance);
 
-	double amount;
+	float amount;
 	printf("Enter your amount : ");
 	scanf("%lf", &amount);
 
@@ -412,14 +399,13 @@ int walletTopUp(MemberDetails* member) {
 		member->walletBalance += amount;
 		writeFile(member);//update wallet balance
 		printf("Top Up sucessfully!\n");
-		printf("\n\n");
-		printf("Press any key to continue...\n");
-		rewind(stdin);
-		getchar(); // Wait for a key press
+		keyPress();
 	}
 }
 
-int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
+int selectBankCard(MemberDetails* member, float amount, bool* checkPayment) {
+
+	//amount dont use at this function , assume amount just give external bank to know  how much need to deduct
 
 	printf("1.Use current card\n");
 	printf("2.Add new card\n");
@@ -442,25 +428,19 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 			}
 			else {
 				printf("Wrong pin number !\n");
-				printf("\n\n");
-				printf("Press any key to continue...\n");
-				rewind(stdin);
-				getchar(); // Wait for a key press
+				keyPress();
 			}
 		}
 		else {
 			printf("\nYou don't have a card yet !\n\n");
-			printf("\n\n");
-			printf("Press any key to continue...\n");
-			rewind(stdin);
-			getchar(); // Wait for a key press
+			keyPress();
 		}
 		break;
 	case 2:
 		printf("\nPlease enter card number (0000 0000 0000 0000)\t: ");
 		rewind(stdin);
 		scanf("%19[^\n]", cardNumber);
-		
+
 		if (validateCardNumber(&cardNumber)) {
 			printf("\nPlease enter 6-digit pin \t\t: ");
 			rewind(stdin);
@@ -474,26 +454,17 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 			}
 			else {
 				printf("Wrong format for pin.\nYou will exit now ......\n");
-				printf("\n\n");
-				printf("Press any key to continue...\n");
-				rewind(stdin);
-				getchar(); // Wait for a key press
+				keyPress();
 			}
 		}
-		//else {
-		//	printf("Wrong format for card number.\nYou will exit now ......\n");
-		//	printf("\n\n");
-		//	printf("Press any key to continue...\n");
-		//	rewind(stdin);
-		//	getchar(); // Wait for a key press
-		//}
+		else {
+			printf("Wrong format for card number.\nYou will exit now ......\n");
+			keyPress();
+		}
 		break;
 	default:
 		printf("Invalid options.\nYou will exit now ...... \n");
-		printf("\n\n");
-		printf("Press any key to continue...\n");
-		rewind(stdin);
-		getchar(); // Wait for a key press
+		keyPress();
 		break;
 	}
 	return 0;
@@ -524,10 +495,7 @@ int walletMenu(MemberDetails* member) {
 		}
 	} while (select != 0);
 	printf("\n\nExit from Wallet Menu.\n\n");
-	printf("\n\n");
-	printf("Press any key to continue...\n");
-	rewind(stdin);
-	getchar(); // Wait for a key press
+	keyPress();
 	return 0;
 }
 
@@ -538,13 +506,9 @@ int viewMemberWallet(MemberDetails* member) {
 	printf("==================\n\n");
 	printf("Name \t\t: %s\n", member->name);
 	printf("Member Id \t: %s\n", member->memberID);
-	printf("Wallet Balance \t: RM%.2lf\n", member->walletBalance);
+	printf("Wallet Balance \t: RM%.2f\n", member->walletBalance);
 
-	printf("\n\n");
-	printf("Press any key to continue...\n");
-	rewind(stdin);
-	getchar(); // Wait for a key press
-
+	keyPress();
 	return 0;
 }
 
@@ -583,5 +547,82 @@ int memberLogin() {
 			printf("Wrong password");
 		}
 	}
+	return 0;
+}
+
+//int bookingHistory(MemberDetails* member) {
+//	Booking history;
+//
+//	FILE* bookingFP;
+//	char filepath[128] = "";
+//	sprintf(filepath, "data/text/ticketBooking/%s.txt", member->memberID);
+//
+//	bookingFP = fopen(filepath, "r");
+//	if (bookingFP == NULL) {
+//		printf("Error opening file!\n");
+//		return 1;
+//	}
+//	printf("%-15s %-15s %-15s %-10s %-20s %-10s\n\n", "Booking ID", "Booking Date", "Departure Date", "Price", "Payment Type", "Status");
+//
+//	while (fscanf(bookingFP, "%s|%d/%d/%d|%d/%d/%d|%f|%s|%s|%s\n",
+//		history.bookingID,
+//		&history.bookingDate.day, &history.bookingDate.month, &history.bookingDate.year,
+//		&history.departureDate.day, &history.departureDate.month, &history.departureDate.year,
+//		&history.price,
+//		history.paymentType,
+//		history.status) != EOF) {
+//		printf("%-15s", history.bookingID);
+//
+//	}
+//
+//	printf("\nEnd of records ...... \n");
+//
+//	fclose(bookingFP);
+//
+//	keyPress();
+//
+//	return 0;
+//}
+
+bool refund(MemberDetails* member,float amount) {
+
+	printf("Refund Page \n");
+	printf("==================\n\n");
+
+	float refundAmt;
+	refundAmt = amount * 0.75;
+
+	printf("Total amount of tickets \t: %.2f\n", amount);
+	printf("Total amount of money will be refunded :%.2f\n", refundAmt);
+
+	printf("Are you sure you want to cancel your tickets (Y to continue) : ");
+	char choice;
+	scanf("%c", &choice);
+	choice = toupper(choice);
+
+	if (choice == 'Y') {
+		printf("Ticket cancelled ......\n");
+
+		member->walletBalance += amount;
+		printf("RM%.2f has been deposited into your wallet !\n");
+
+		keyPress();
+		return true;
+	}
+	else {
+		printf("Cancel refund process ......\n");
+
+		keyPress();
+		return false;
+	}
+
+}
+
+int keyPress() {
+	printf("\n\n");
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+
 	return 0;
 }
