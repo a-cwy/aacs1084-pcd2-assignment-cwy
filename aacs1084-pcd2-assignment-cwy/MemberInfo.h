@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-typedef struct {
+typedef struct MemberDetails {
 	char name[20];
 	char gender;//(F/M)
 	char icNo[15]; //(123456 - 12 - 1234)
@@ -14,7 +14,6 @@ typedef struct {
 	char cardNumber[17];//(16digit)
 	char pin[7];//(6digit)
 	int memberLv;
-	int memberPoint;
 } MemberDetails;
 
 // Menu function for member

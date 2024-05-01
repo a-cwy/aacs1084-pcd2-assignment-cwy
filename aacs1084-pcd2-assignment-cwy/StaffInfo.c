@@ -273,7 +273,7 @@ int changeStaffPassword(const char* staffID) {
 	do {
 		printf("Confirm password change? > ");
 		rewind(stdin);
-		if(scanf("%c", &choice) != 1) continue;
+		if (scanf("%c", &choice) != 1) continue;
 		choice = toupper(choice);
 	} while (choice != 'Y' && choice != 'N');
 
@@ -281,7 +281,7 @@ int changeStaffPassword(const char* staffID) {
 		printf("Password change cancelled.\n");
 		return(0);
 	}
-	
+
 	strcpy(staffToChange.staffPassword, newPass);
 	writeStaffInfoToFile(&staffToChange, true);
 	printf("Password changed.\n");
@@ -552,7 +552,7 @@ int generateStaffReport() {
 	printf("\tFull-time\t> %d\n", employmentTypeCountFTPT[0]);
 	printf("\tPart-time\t> %d\n", employmentTypeCountFTPT[1]);
 	printf("\n");
-	printf("Average salary\t> RM%.2f\n", (float) totalSalary / (staffCountFM[0] + staffCountFM[1]));
+	printf("Average salary\t> RM%.2f\n", (float)totalSalary / (staffCountFM[0] + staffCountFM[1]));
 
 	return(0);
 }

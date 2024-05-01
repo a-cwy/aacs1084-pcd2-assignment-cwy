@@ -1,57 +1,68 @@
 #include "Util.h"
-#include "TicketBooking.h"
 #include "MemberInfo.h"
+#include "TicketBooking.h"
+		 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<time.h>
-#include<ctype.h>
-#include<string.h>
-#include<stdbool.h>
 #pragma warning(disable:4996)
 
 #define EDIT_INFO_OPTION_SIZE 4
 const char* EDIT_INFO_MENU_OPTIONS[EDIT_INFO_OPTION_SIZE] = { "Edit Name", "Edit Phone No.","Edit Email","Edit Password" };
 
 #define WALLET_MENU_OPTION_SIZE 3
-const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up","Member Level" };
-
-#define MEMBER_MENU_OPTION_SIZE 6
-const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info","View Member Wallet","Delete Member Account", "Ticket Booking","View Booking History" };
+const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up", "Member Level" };
+#define MEMBER_MENU_OPTION_SIZE 5
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info", "View Member Wallet", "Close Member Account", "Ticket Booking" };
+#define MEMBER_EDIT_OPTION_SIZE 4
+const char* MEMBER_EDIT_OPTIONS[MEMBER_EDIT_OPTION_SIZE] = { "Name", "Phone Number", "Email", "Password" };
 
 int memberRegistration() {
-
 	MemberDetails member;
 
-	//Input for new member info
+	// Input for new member info
+	system("cls");
 	printf("Member Registration :\n");
 	printf("==================\n");
 	inputMemberInfo(&member);
+
+	// Display input
+	system("cls");
+	printf("Please confirm the details of the your account.\n");
 	displayMemberInfo(&member);
-	printf("\nPlease confirm the details of the your account.\n\n");
-	printf("Is all your info are correct? ");
+	printf("Create account?\n");
 
 	char choice;
 	do {
-		printf("(Y/N)\t> ");
+		printf("\t(Y/N)\t> ");
 		rewind(stdin);
-		scanf("%c", &choice);
+		if (scanf("%c", &choice) != 1) continue;
 		choice = toupper(choice);
 	} while (choice != 'Y' && choice != 'N');
 
 	if (choice == 'N') return 0;
 
 	writeFile(&member);
-	printf("Member register sucessfully !\n");
+	printf("Member registered sucessfully!\n");
+	printf("\nPress enter to continue.");
+	rewind(stdin);
+	if (getc(stdin) == 0); //?????
 
 	return 0;
 }
 
 int inputMemberInfo(MemberDetails* member) {
 	//accept member details
-	printf("Name\t\t\t\t: ");
-	rewind(stdin);
-	scanf(" %[^\n]", member->name);
+
+	//name
+	do {
+		printf("Name\t\t\t\t: ");
+		rewind(stdin);
+	} while (scanf("%[^\n]", member->name) != 1);
 
 	//gender
 	do {
@@ -95,7 +106,7 @@ int inputMemberInfo(MemberDetails* member) {
 	} while (printf("Length between 8 - 20\n"));
 
 	///member id
-	char tempMemberID[6];
+	char tempMemberID[6] = { 0 };
 	// Generate member id
 	generateMemberID(tempMemberID);
 	strcpy(member->memberID, tempMemberID);
@@ -110,12 +121,12 @@ int inputMemberInfo(MemberDetails* member) {
 
 int generateMemberID(char* tempMemberID) {
 	FILE* memberFP;
-	bool check = false;
-	while (!check) {
+	bool exists = false; //check is the id exist already?
+
+	do {
 		srand(time(NULL));
 		for (int j = 1; j < 5; j++) {
-			int num = rand() % 10;
-			tempMemberID[j] = '0' + num;
+			tempMemberID[j] = '0' + (rand() % 10); // Randomly populate tempMemberID with 0 - 9
 		}
 
 		tempMemberID[0] = 'M';//let the id always start with M
@@ -125,27 +136,25 @@ int generateMemberID(char* tempMemberID) {
 		sprintf(filepath, "data/bin/member/%s.bin", tempMemberID);
 
 		memberFP = fopen(filepath, "rb");
-		if (!memberFP) {
-			check = true;//check is the id exist already?
-		}
-		else {
-			fclose(memberFP);
-		}
-	}
-	return 0;
+		exists = (memberFP != NULL);
+	} while (exists);
+
+	if (memberFP != NULL) fclose(memberFP);
+	return(0);
 }
 
-int writeFile(MemberDetails* member) {
-
+int writeFile(const MemberDetails* member) {
 	FILE* memberFP;
 	char filepath[128] = "";
 	sprintf(filepath, "data/bin/member/%s.bin", member->memberID);
 
 	memberFP = fopen(filepath, "wb");
+	if (memberFP == NULL) return(1);
+
 	fwrite(member, sizeof(MemberDetails), 1, memberFP);
 	fclose(memberFP);
 
-	system("cls");
+	return(0);
 }
 
 int displayMemberInfo(MemberDetails* member) {
@@ -165,29 +174,32 @@ int displayMemberInfo(MemberDetails* member) {
 }
 
 int memberMenu(MemberDetails* member) {
+	int choice = 0;
 
-	int select;
-	do {
+	while (1) {
 		system("cls");
-		select = displayMenu(MEMBER_MENU_OPTIONS, MEMBER_MENU_OPTION_SIZE);
+		choice = displayMenu(MEMBER_MENU_OPTIONS, MEMBER_MENU_OPTION_SIZE);
 
-		switch (select) {
-		case 0:
+		switch (choice) {
+		case 0: // Exit
 			return 0;
 			break;
-		case 1:
+		case 1: // View Info
 			displayMemberInfo(member);
+			printf("\nPress enter to continue.");
+			rewind(stdin);
+			if (getc(stdin) == 0); //?????
 			break;
-		case 2:
-			editMemberInfo(member);
+		case 2: // Edit Info
+			editMemberInfoSubmenu(member);
 			break;
-		case 3:
+		case 3: // View Wallet
 			walletMenu(member);
 			break;
-		case 4:
+		case 4: // Close Account
 			deleteMemberAccount(member);
 			break;
-		case 5:
+		case 5: // Ticket Booking Menu
 			ticketBookingMenu(member);
 			break;
 		case 6:
@@ -196,103 +208,141 @@ int memberMenu(MemberDetails* member) {
 		default:
 			break;
 		}
-	} while (select != 0);
+	};
 	writeFile(member);
+
 	return 0;
 }
 
-int editMemberInfo(const MemberDetails* member) {
-	//for member display info and edit info
-	displayMemberInfo(member);
-
-	printf("Edit Info\n");
+int displayMemberInfo(const MemberDetails* member) {
+	printf("\nMember Information \n");
 	printf("==================\n");
-	// Member old password
+	printf("Name\t\t: %s\n", member->name);
+	printf("Gender\t\t: %c\n", member->gender);
+	printf("IC No.\t\t: %s\n", member->icNo);
+	printf("Phone No.\t: %s\n", member->phoneNo);
+	printf("Email\t\t: %s\n", member->email);
+	printf("Member ID\t: %s\n", member->memberID);
+
+	return 0;
+}
+
+int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
+	// Password check
 	char pw[20] = { 0 };
-	printf("Enter Password to continue edit info : ");
-	scanf("%s", pw);
-	printf("\n\n");
+	do {
+		printf("Enter Password to continue edit info : ");
+	} while (scanf("%s", pw) != 1);
 
-	// Check if the old password matches
-	if (strcmp(pw, member->password) == 0) {
-		int select;
-		do {
-			system("cls");
-			select = displayMenu(EDIT_INFO_MENU_OPTIONS, EDIT_INFO_OPTION_SIZE);
+	if (strcmp(pw, memberToEdit->password) != 0) {
+		system("cls");
+		printf("Wrong password.\n");
 
-			switch (select) {
-			case 0:
-				return 0;
-				break;
-			case 1:
-				printf("Enter new name: ");
-				scanf(" %[^\n]", member->name);
-				writeFile(member);
-				printf("New Name record successfully !\n");
-				keyPress();
-				break;
-			case 2:
-				printf("Enter new Phone No.: ");
-				char tempPhoneNo[13];
-				scanf("%s", &tempPhoneNo);
-				if (validatePhoneNumber(tempPhoneNo)) {
-					strcpy(member->phoneNo, tempPhoneNo);
-					writeFile(member);
-					printf("New Phone No. record successfully !\n");
-					keyPress();
-					break;
-				}
-				else {
-					printf("Wrong format , please try again.\n");
-					keyPress();
-					break;
-				}
-				break;
-			case 3:
-				printf("Enter new Email: ");
-				char tempEmail[100];
-				scanf("%s", tempEmail);
-				if (validateEmail(tempEmail)) {
-					strcpy(member->email, tempEmail);
-					writeFile(member);
-					printf("New Email record successfully !\n");
-					keyPress();
-					break;
-				}
-				else {
-					printf("Wrong format , please try again.\n");
-					keyPress();
-					break;
-				}
-				break;
-			case 4:
-				printf("Enter new password: ");
-				char tempPw[20];
-				scanf("%s", tempPw);
-				if (validateMemberPassword(tempPw)) {
-					strcpy(member->password, tempPw);
-					writeFile(member);
-					printf("New Password successfully !\n");
-					keyPress();
-					break;
-				}
-				else {
-					printf("Wrong format , please try again.\n");
-					keyPress();
-					break;
-				}
-				break;
-			default:
-				printf("Invalid option\n\n");
-				keyPress();
-				break;
+		printf("\n\n");
+		printf("\nPress enter to continue.");
+		rewind(stdin);
+		if (getc(stdin) == 0); //?????
+		return(0);
+	}
+
+	// Get existing member info
+	MemberDetails tempMember;
+	char filepath[128];
+	sprintf(filepath, "data/bin/member/%s.bin", memberToEdit->memberID);
+	FILE* iMemFP;
+	iMemFP = fopen(filepath, "rb");
+
+	if (iMemFP == NULL) return(1);
+
+	fread(&tempMember, sizeof(MemberDetails), 1, iMemFP);
+	fclose(iMemFP);
+
+	// Edit Submenu
+	int editChoice;
+	char confirmChanges;
+	while (1) {
+		system("cls");
+		displayMemberInfo(&tempMember);
+
+		printf("Edit Info\n");
+		printf("==================\n");
+		// Display options for editing
+		editChoice = displayMenu(MEMBER_EDIT_OPTIONS, MEMBER_EDIT_OPTION_SIZE);
+
+		// Allow member to edit info until they choose to exit
+		switch (editChoice) {
+		case 0: // Exit/Back
+			do {
+				system("cls");
+				displayMemberInfo(&tempMember);
+				printf("Confirm changes?\n(Y/N)\t> ");
+				rewind(stdin);
+				if (scanf("%c", &confirmChanges) != 1) continue;
+				confirmChanges = toupper(confirmChanges);
+			} while (confirmChanges != 'Y' && confirmChanges != 'N');
+
+			if (confirmChanges == 'N') {
+				printf("Changes reverted.\n");
+				printf("\nPress enter to go back.");
+				rewind(stdin);
+				if (getc(stdin) == 0); //?????
+				return(0);
+			};
+
+			writeFile(&tempMember);
+
+			{
+				FILE* iMemFP;
+				iMemFP = fopen(filepath, "rb");
+
+				if (iMemFP == NULL) return(1);
+
+				fread(memberToEdit, sizeof(MemberDetails), 1, iMemFP);
+				fclose(iMemFP);
 			}
-		} while (select != 0);
-	}
-	else {
-		printf("Wrong password\n");
-		keyPress();
-	}
+			
+			printf("Changes saved.\n");
+			printf("\nPress enter to go back.");
+			rewind(stdin);
+			if (getc(stdin) == 0); //?????
+
+			return 0;
+			break;
+		case 1: // Name
+			do {
+				printf("Name\t\t\t\t: ");
+				rewind(stdin);
+			} while (scanf("%[^\n]", tempMember.name) != 1);
+			break;
+		case 2: // Phone Number
+			do {
+				printf("Phone No (012-34567890)\t\t> ");
+				rewind(stdin);
+				if (scanf("%12s", tempMember.phoneNo) != 1) continue;
+				if (validatePhoneNumber(tempMember.phoneNo)) break;
+			} while (printf("Invalid format , please try again. \n"));
+			break;
+		case 3: // Email
+			do {
+				printf("Email (abc@email.com)\t\t> ");
+				rewind(stdin);
+				if (scanf("%99[^\n]", tempMember.email) != 1) continue;
+				if (validateEmail(tempMember.email)) break;
+			} while (printf("Invalid email, please try again.\n"));
+			break;
+		case 4: // Password
+			do {
+				printf("Password (8 - 20 character)\t> ");
+				rewind(stdin);
+				if (scanf("%19s", tempMember.password) != 1) continue;
+				if (validateMemberPassword(tempMember.password)) break;
+			} while (printf("Length between 8 - 20\n"));
+			break;
+		default:
+			break;
+		}
+	};
+
 	return 0;
 }
 
