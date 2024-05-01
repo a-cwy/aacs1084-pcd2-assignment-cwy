@@ -10,11 +10,10 @@ typedef struct {
 	char email[100];//(abc@email.com)
 	char password[20];//%s (8 - 20 character)
 	char memberID[6];//random 5digit
-	double walletBalance;
+	float walletBalance;
 	char cardNumber[20];//(0000 0000 0000 0000)
 	char pin[7];//(6digit)
 	int memberLv;
-
 } MemberDetails;
 
 // Menu function for member
@@ -22,4 +21,4 @@ int memberLogin();
 int memberRegistration();
 
 //for ticketBooking module to call function
-bool payment(MemberDetails* member, double amount);
+bool payment(MemberDetails* member, float amount);

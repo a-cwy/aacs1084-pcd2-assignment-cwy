@@ -6,12 +6,14 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <wchar.h>
+#include <Windows.h>
 
 #pragma warning (disable:4996)
 
 //Menu for admin
 #define ATSCHE_MENU_OPTION_SIZE 4
-const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule(N/A)", "View All Train", "Generate Report" };
+const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule", "View All Train", "Generate Report" };
 
 //Menu for staff
 #define STSCHE_MENU_OPTION_SIZE 3
@@ -24,14 +26,43 @@ const char* EDITTR_MENU_OPTIONS[EDITTR_MENU_OPTIONS_SIZE] = { "Departure Date", 
 const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" };
 
 
-
+//for search by date timetable
 int totalAvailableSeats;
 int totalSeatsBooked;
 float occupancyRate;
 
-int compareDay;
-int compareMonth;
-int compareYear;
+int day, month, year;
+
+//Functions
+//Menu
+int trainSchedulingModule();
+int adminTSMenu(bool* admin);
+int staffTSMenu(bool* staff);
+
+//Main function including add, search, view, delete
+int manageTrain(bool* admin);
+int addTrain();
+int adminEditTrain();
+int staffEditTrainDA();
+int staffEditTrainDATime();
+int searchTrain();
+int viewAllTrain();
+int removeTrain();
+
+//Seats analysis
+int availableSeats(const char* filepath);
+int bookedSeats(const char* filepath);
+int analyzeTrainFile(const char* filepath);
+int generateOccupancyRate();
+int generateSeatsAvailability(const char* filepath, Train* trainToReport);
+int trainReports();
+
+//Search by date for train
+int trainTimetable();
+void displayByDate(const char* filepath, const int* day, const int* month, const int* year);
+int getFileWithDateFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath, const int* day, const int* month, const int* year));
+bool compareDate(const Train* trainToCompare, const int* day, const int* month, const int* year);
+
 
 int trainSchedulingModule() {
 	int selection;
@@ -84,7 +115,7 @@ int adminTSMenu(bool* admin) {
 			manageTrain(admin);
 			break;
 		case 2:
-			//trainTimetable();
+			trainTimetable();
 			break;
 		case 3:
 			viewAllTrain();
@@ -1095,7 +1126,7 @@ int generateSeatsAvailability(const char* filepath, Train* trainToReport) {
 	Train currentTrain;
 	int seatsAvailable = availableSeats(filepath);
 	int seatsBooked = bookedSeats(filepath);
-	float occupancyRate = seatsBooked / seatsAvailable;
+	float occupancyRate = (seatsBooked / seatsAvailable)*100.00;
 	system("cls");
 	printf("%s Seats Availability Report:\n", trainToReport->trainID);
 	printf("==================================================\n");
@@ -1163,4 +1194,106 @@ int trainReports() {
 	return(0);
 
 };
+
+bool compareDate(const Train* trainToCompare, const int* day, const int* month, const int* year) {
+	if (day== trainToCompare->departureDate.day && month== trainToCompare->departureDate.month && year == trainToCompare->departureDate.year) {
+		return true;
+	}
+	return false;
+};
+
+void displayByDate(const char* filepath, const int* day, const int* month, const int* year) {
+	Train trainToCompare;
+	FILE* cPtr;
+	cPtr = fopen(filepath, "r");
+	if (!cPtr) {
+		printf("Error opening file\n");
+		return(0);
+	};
+	fscanf(cPtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+		trainToCompare.trainID,
+		&trainToCompare.departureDate.day,
+		&trainToCompare.departureDate.month,
+		&trainToCompare.departureDate.year,
+		trainToCompare.departureStation,
+		trainToCompare.arrivalStation,
+		&trainToCompare.departureTime.hours,
+		&trainToCompare.departureTime.minutes,
+		&trainToCompare.arrivalTime.hours,
+		&trainToCompare.arrivalTime.minutes);
+
+	if (compareDate(&trainToCompare, day, month, year) == true) {
+
+		int seatAvailable = availableSeats(filepath);
+		printf("%-10s%02d/%02d/%04d\t      %-20s%-20s%02d:%02d                %02d:%02d\t\t%d\n",
+			trainToCompare.trainID, trainToCompare.departureDate.day, trainToCompare.departureDate.month, trainToCompare.departureDate.year,
+			trainToCompare.departureStation, trainToCompare.arrivalStation,
+			trainToCompare.departureTime.hours, trainToCompare.departureTime.minutes,
+			trainToCompare.arrivalTime.hours, trainToCompare.arrivalTime.minutes,
+			seatAvailable);
+	}
+
+	fclose(cPtr);
+	return (0);
+}
+
+int getFileWithDateFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath, const int* day, const int* month, const int* year)) {
+	// Convert searchDir to wchar_t
+	wchar_t wSearchDir[1024];
+	mbstowcs(wSearchDir, cSearchDir, 1024);
+
+	WIN32_FIND_DATA file;
+	HANDLE searchHandle = NULL;
+	wchar_t searchPath[2048];
+
+	// Search all files and folders in directory
+	wsprintf(searchPath, L"%s\\*.*", wSearchDir);
+
+	// Check if files exists in the directory, return 1 if no files exist
+	if ((searchHandle = FindFirstFile(searchPath, &file)) == INVALID_HANDLE_VALUE) return(1);
+
+	do {
+		// First two files always "." and ".."
+		if (wcscmp(file.cFileName, L".") == 0 || wcscmp(file.cFileName, L"..") == 0) continue;
+
+		// Get filepath of first file in searchDir
+		wsprintf(searchPath, L"%s\\%s", wSearchDir, file.cFileName);
+
+		// Check if entity is a file or folder
+		if (file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
+
+		// Run callback function with filepath
+		char filepath[2048];
+		wcstombs(filepath, &searchPath, 2048);
+		(*callback)(filepath, day, month, year);
+
+	} while (FindNextFile(searchHandle, &file));
+
+	FindClose(searchHandle);
+
+	return(0);
+}
+
+int trainTimetable() {
+	//day month year declared at global var cuz keep propmpting error when i declare it locally
+	printf("Enter Date(DD/MM/YYYY)> ");
+	scanf("%02d/%02d/%04d", &day, &month, &year);
+
+
+
+	printf("\t\tTrain Schedule for %02d/%02d/%04d\n", day, month, year);
+	printf("\n%-10s%-20s%-20s%-20s%-20s%-15s%-20s\n", "Train ID", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
+	printf("%-125s\n", "========================================================================================================================");
+	getFileWithDateFromDirectory("data\\text\\trainSchedule", displayByDate, &day, &month, &year);
+
+	printf("Press any key to continue...\n");
+	rewind(stdin);
+	getchar(); // Wait for a key press
+	printf("Continuing...\n");
+
+	return (0);
+
+
+}
+
 
