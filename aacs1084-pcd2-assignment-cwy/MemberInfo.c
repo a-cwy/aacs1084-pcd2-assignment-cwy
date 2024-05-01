@@ -336,18 +336,12 @@ bool payment(MemberDetails* member, double amount) {
 	printf("Payment Page\n");
 	printf("==================\n\n");
 
-	double discount = 100 - (member->memberLv * 10);//give discount by member level
-	amount = amount * (discount / 100);
-
-	printf("Discount = %.0lf%%\n", 100 - discount);
-	printf("Total amount = Rm%.2lf\n", amount);
-	keyPress();
-
 	//if wallet balance enough , direct deduct from it
 	if (member->walletBalance >= amount) {
 		printf("Wallet balance is used!\n");
 		member->walletBalance -= amount;
-		writeFile(member); // Update wallet balance
+		member->memberPoint += (int)amount;
+		writeFile(member); // Update wallet balance and point
 		printf("Payment successfully!\n");
 		printf("Remaining wallet balance: %.2lf\n", member->walletBalance);
 		keyPress();
@@ -359,6 +353,8 @@ bool payment(MemberDetails* member, double amount) {
 		selectBankCard(member, amount, &checkPayment);
 
 		if (checkPayment == true) {
+			member->memberPoint += (int)amount;
+			writeFile(member); // Update point
 			printf("Payment successfully!\n");
 			keyPress();
 		}
@@ -383,11 +379,10 @@ int memberLevel(MemberDetails* member) {
 	if (member->memberLv < 5) {
 
 		printf("Level 1 : RM100\n");
-		printf("Level 2 : RM135\n");
-		printf("Level 3 : RM160\n");
-		printf("Level 4 : RM175\n");
-		printf("Level 5 : RM180\n");
-		printf("Amount already include discount \n\n");
+		printf("Level 2 : RM110\n");
+		printf("Level 3 : RM120\n");
+		printf("Level 4 : RM130\n");
+		printf("Level 5 : RM140\n");
 
 		printf("Do you want to upgrade member Level ? (Y to continue) : ");
 		char choice;
@@ -395,7 +390,7 @@ int memberLevel(MemberDetails* member) {
 		choice = toupper(choice);
 
 		double amount = 100;
-		amount += (member->memberLv * 50);
+		amount += (member->memberLv * 10);
 		keyPress();
 		if (choice == 'Y') {
 			system("cls");
@@ -629,40 +624,6 @@ int bookingHistory(MemberDetails* member) {
 	keyPress();
 
 	return 0;
-}
-
-bool refund(MemberDetails* member, double amount) {
-
-	printf("Refund Page \n");
-	printf("==================\n\n");
-
-	double refundAmt;
-	refundAmt = amount * 0.75;//only 75% of amount will be refund
-
-	printf("Total amount of tickets \t: %.2f\n", amount);
-	printf("Total amount of money will be refunded :%.2lf\n", refundAmt);
-
-	printf("Are you sure you want to cancel your tickets (Y to continue) : ");
-	char choice;
-	scanf("%c", &choice);
-	choice = toupper(choice);
-
-	if (choice == 'Y') {
-		printf("Ticket cancelled ......\n");
-
-		member->walletBalance += amount;
-		printf("RM%.2lf has been deposited into your wallet !\n");
-
-		keyPress();
-		return true;
-	}
-	else {
-		printf("Cancel refund process ......\n");
-
-		keyPress();
-		return false;
-	}
-
 }
 
 int keyPress() {

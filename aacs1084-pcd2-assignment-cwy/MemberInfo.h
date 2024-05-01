@@ -14,6 +14,7 @@ typedef struct {
 	char cardNumber[17];//(16digit)
 	char pin[7];//(6digit)
 	int memberLv;
+	int memberPoint;
 } MemberDetails;
 
 // Menu function for member
@@ -22,4 +23,3 @@ int memberRegistration();
 
 //for ticketBooking module to call function
 bool payment(MemberDetails* member, double amount);
-bool refund(MemberDetails* member, double amount);

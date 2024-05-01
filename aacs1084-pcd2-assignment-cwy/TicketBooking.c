@@ -225,6 +225,9 @@ int refundTicket(MemberDetails* member) {
                 printf("Payment Type -> %s\n", booking.paymentType);
                 printf("Status -> %s\n", booking.status);
                 printf("Member ID -> %s\n", booking.memberID);
+
+                member->walletBalance += booking.price;
+                printf("RM%.2f has been deposited into your wallet !\n");
                 printf("\n");
             }
 
