@@ -331,22 +331,22 @@ int deleteMemberAccount(MemberDetails* member) {
 	return 0;
 }
 
-bool payment(MemberDetails* member, double amount) {
+bool payment(MemberDetails* member, double* amount) {
 
 	printf("Payment Page\n");
 	printf("==================\n\n");
 
-	double discount = 100 - (member->memberLv * 10);//give discount by member level
-	amount = amount * (discount / 100);
+	double discount = 100 - (member->memberLv * 10);
+	*amount = *amount * (discount / 100);
 
 	printf("Discount = %.0lf%%\n", 100 - discount);
-	printf("Total amount = Rm%.2lf\n", amount);
+	printf("Total amount = Rm%.2lf\n", *amount);
 	keyPress();
 
 	//if wallet balance enough , direct deduct from it
-	if (member->walletBalance >= amount) {
+	if (member->walletBalance >= *amount) {
 		printf("Wallet balance is used!\n");
-		member->walletBalance -= amount;
+		member->walletBalance -= *amount;
 		writeFile(member); // Update wallet balance
 		printf("Payment successfully!\n");
 		printf("Remaining wallet balance: %.2lf\n", member->walletBalance);
@@ -356,7 +356,7 @@ bool payment(MemberDetails* member, double amount) {
 	//if balance not enough , use bank card , no record will save in our system
 	else {
 		bool checkPayment = false;
-		selectBankCard(member, amount, &checkPayment);
+		selectBankCard(member, &amount, &checkPayment);
 
 		if (checkPayment == true) {
 			printf("Payment successfully!\n");
@@ -400,9 +400,9 @@ int memberLevel(MemberDetails* member) {
 		if (choice == 'Y') {
 			system("cls");
 
-			bool checkPayment = payment(member, amount);
+			bool checkPayment = payment(member, &amount);
 			if (checkPayment == true) {
-				member->memberLv++;//update member level
+				member->memberLv++;
 				writeFile(member);
 				printf("Member Level upgrade !\n");
 				keyPress();
@@ -414,7 +414,7 @@ int memberLevel(MemberDetails* member) {
 		}
 	}
 	else {
-		printf("Max member level !!!\n");//max level 5 , if exceed cant upgrade
+		printf("Max member level !!!\n");
 		keyPress();
 	}
 }
@@ -433,17 +433,17 @@ int walletTopUp(MemberDetails* member) {
 	printf("\n\n");
 
 	bool checkPayment = false;
-	selectBankCard(member, amount, &checkPayment);
+	selectBankCard(member, &amount, &checkPayment);
 
 	if (checkPayment == true) {
-		member->walletBalance += amount;//update wallet balance
+		member->walletBalance += amount;
 		writeFile(member);//update wallet balance
 		printf("Top Up sucessfully!\n");
 		keyPress();
 	}
 }
 
-int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
+int selectBankCard(MemberDetails* member, double* amount, bool* checkPayment) {
 
 	//amount dont use at this function , assume amount just give external bank to know  how much need to deduct
 
@@ -464,7 +464,7 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 			scanf(" %s", &pin);
 
 			if (strcmp(pin, member->pin) == 0) {
-				*checkPayment = true;//payment successful 
+				*checkPayment = true;//payment successful
 			}
 			else {
 				printf("Wrong pin number !\n");
@@ -477,12 +477,12 @@ int selectBankCard(MemberDetails* member, double amount, bool* checkPayment) {
 		}
 		break;
 	case 2:
-		printf("\nPlease enter card number (16digit)\t: ");//add card
+		printf("\nPlease enter card number (16digit)\t: ");
 		rewind(stdin);
 		scanf("%16[^\n]", cardNumber);
 
 		if (validateCardNumber(&cardNumber)) {
-			printf("\nPlease enter 6-digit pin \t\t: ");//add pin
+			printf("\nPlease enter 6-digit pin \t\t: ");
 			rewind(stdin);
 			scanf("%6s", pin);
 
@@ -572,7 +572,7 @@ int memberLogin() {
 		//back to menu or else
 	}
 	else {
-		fread(&member, sizeof(MemberDetails), 1, memberFP);//get data from file to compare password
+		fread(&member, sizeof(MemberDetails), 1, memberFP);
 		fclose(memberFP);
 
 		char password[20] = "";
@@ -637,7 +637,7 @@ bool refund(MemberDetails* member, double amount) {
 	printf("==================\n\n");
 
 	double refundAmt;
-	refundAmt = amount * 0.75;//only 75% of amount will be refund
+	refundAmt = amount * 0.75;
 
 	printf("Total amount of tickets \t: %.2f\n", amount);
 	printf("Total amount of money will be refunded :%.2lf\n", refundAmt);

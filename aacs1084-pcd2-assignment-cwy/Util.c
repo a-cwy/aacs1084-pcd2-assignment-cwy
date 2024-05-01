@@ -185,7 +185,7 @@ bool validateMemberPassword(const char* password) {
 }
 
 bool validateCardNumber(const char* cardNumber) {
-	for (int i = 0;i < 20;i++) {
+	for (int i = 0;i < 16;i++) {
 		if (!isdigit(cardNumber[i])) return(false);
 	}
 	return(true);
