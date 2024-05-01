@@ -14,6 +14,7 @@ typedef struct MemberDetails {
 	char cardNumber[17];//(16digit)
 	char pin[7];//(6digit)
 	int memberLv;
+	int memberPoint;
 } MemberDetails;
 
 // Menu function for member

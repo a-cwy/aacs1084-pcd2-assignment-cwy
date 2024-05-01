@@ -424,7 +424,8 @@ int memberLevel(MemberDetails* member) {
 
 	//printf member level
 	printf("Member Level : Lv%d\n\n", member->memberLv);
-	printf("Member Point : %dpoint",member->memberPoint);
+	printf("Member Point : %dpoint\n",member->memberPoint);
+	printf("Please exchange gift at counter with your point\n!");
 
 	//ask user want to upgrade?
 	if (member->memberLv < 5) {
