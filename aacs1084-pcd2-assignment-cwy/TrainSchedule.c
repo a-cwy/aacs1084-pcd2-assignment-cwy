@@ -1,5 +1,6 @@
 #include "Util.h"
 #include "TrainSchedule.h"
+#include "StaffInfo.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,18 +13,21 @@
 #pragma warning (disable:4996)
 
 //Menu for admin
-#define ATSCHE_MENU_OPTION_SIZE 4
-const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Train Schedule", "View All Train", "Generate Report" };
-
+#define ATSCHE_MENU_OPTION_SIZE 5
+const char* ATSCHE_MENU_OPTIONS[ATSCHE_MENU_OPTION_SIZE] = { "Manage Train", "View All Train", "Search Train", "Train Schedule", "Generate Report" };
 //Menu for staff
 #define STSCHE_MENU_OPTION_SIZE 3
-const char* STSCHE_MENU_OPTIONS[STSCHE_MENU_OPTION_SIZE] = { "Manage Train Schedule", "View Train Timetable", "Search Train" };
+const char* STSCHE_MENU_OPTIONS[STSCHE_MENU_OPTION_SIZE] = { "Manage Train", "View All Train", "Search Train" };
 //Menu for edit
 #define EDITTR_MENU_OPTIONS_SIZE 5
 const char* EDITTR_MENU_OPTIONS[EDITTR_MENU_OPTIONS_SIZE] = { "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time" };
 //Menu for report
 #define TSCHER_MENU_OPTION_SIZE 2
 const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" };
+#define AMANAGETR_MENU_OPTION_SIZE 3
+const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", "Edit Train", "Remove Train" };
+#define SMANAGETR_MENU_OPTION_SIZE 2
+const char* SMANAGETR_MENU_OPTIONS[SMANAGETR_MENU_OPTION_SIZE] = { "Edit Train Departure/Arrival Station", "Edit Train Departure/Arrival Time" };
 
 
 //for search by date timetable
@@ -34,10 +38,9 @@ float occupancyRate;
 int day, month, year;
 
 //Functions
+
 //Menu
-int trainSchedulingModule();
-int adminTSMenu(bool* admin);
-int staffTSMenu(bool* staff);
+int trainSchedulingMenu(const Staff* currentStaff);
 
 //Main function including add, search, view, delete
 int manageTrain(bool* admin);
@@ -64,87 +67,23 @@ int getFileWithDateFromDirectory(const char* cSearchDir, int (*callback)(const c
 bool compareDate(const Train* trainToCompare, const int* day, const int* month, const int* year);
 
 
-int trainSchedulingModule() {
-	int selection;
-	bool isAdmin;
-
-	while (1) {
-		system("cls");
-		printf("Welcome to Train Scheduling Module \n\n");
-
-		printf("0: Exit\n");
-		printf("1: Admin\n");
-		printf("2: Staff\n");
-		printf("> ");
-		scanf("%d", &selection);
-		switch (selection) {
-		case 0:
-			return(0);
-			break;
-		case 1:
-			isAdmin = true;
-			adminTSMenu(isAdmin);
-			break; // Exit the loop after a valid selection
-		case 2:
-			isAdmin = false;
-			staffTSMenu(isAdmin);
-			break; // Exit the loop after a valid selection
-		default:
-			printf("Invalid input, please try again\n");
-			break;
-
-		}
-	}
-	return(0);
-}
-
-int adminTSMenu(bool* admin) {
-
+int trainSchedulingMenu(const Staff* currentStaff) {
 	int choice;
 	while (1) {
 		system("cls");
-		printf("Welcome to train scheduling module\n");
-
-		choice = displayMenu(ATSCHE_MENU_OPTIONS, ATSCHE_MENU_OPTION_SIZE);
+		if (currentStaff->isAdmin == true) {
+			choice = displayMenu(ATSCHE_MENU_OPTIONS, ATSCHE_MENU_OPTION_SIZE);
+		}
+		else {
+			choice = displayMenu(STSCHE_MENU_OPTIONS, STSCHE_MENU_OPTION_SIZE);
+		}
 
 		switch (choice) {
 		case 0:
 			return(0);
 			break;
 		case 1:
-			manageTrain(admin);
-			break;
-		case 2:
-			trainTimetable();
-			break;
-		case 3:
-			viewAllTrain();
-			break;
-		case 4:
-			trainReports();
-			break;
-
-		default:break;
-		}
-	}
-
-	return(0);
-}
-
-int staffTSMenu(bool* staff) {
-	int choice;
-
-	while (1) {
-		system("cls");
-		printf("Welcome to train scheduling module\n");
-
-		choice = displayMenu(STSCHE_MENU_OPTIONS, STSCHE_MENU_OPTION_SIZE);
-		switch (choice) {
-		case 0:
-			return(0);
-			break;
-		case 1:
-			manageTrain(staff);
+			manageTrain(currentStaff->isAdmin); //pass isAdmin
 			break;
 		case 2:
 			viewAllTrain();
@@ -152,67 +91,62 @@ int staffTSMenu(bool* staff) {
 		case 3:
 			searchTrain();
 			break;
-
-		default:break;
+		case 4:
+			trainTimetable();
+			break;
+		case 5:
+			trainReports();
+			break;
+		default:
+			break;
 		}
-
 	}
 
-	return (0);
+	return(0);
 }
 
-int manageTrain(bool* admin) {
+int manageTrain(const bool isAdmin) {
+	int choice;
+	
+	while (1) {
+		system("cls");
 
-	int selection;
-	//true for admin, false for staff
-	if (admin == true) {
-		printf("Welcome to Train Manage page\n\n");
-		printf("Please select your operation\n");
-		printf("0: Exit\n");
-		printf("1:Add Train\n");
-		printf("2:Edit Train\n");
-		printf("3:Remove Train\n");
+		if (isAdmin == true) {
+			choice = displayMenu(AMANAGETR_MENU_OPTIONS, AMANAGETR_MENU_OPTION_SIZE);
 
-		scanf("%d", &selection);
-
-		switch (selection) {
-		case 0:
-			return(0);
-			break;
-		case 1:
-			addTrain();
-			break;
-		case 2:
-			adminEditTrain();
-			break;
-		case 3:
-			removeTrain();
-			break;
-		default:break;
+			switch (choice) {
+			case 0:
+				return(0);
+				break;
+			case 1:
+				addTrain();
+				break;
+			case 2:
+				adminEditTrain();
+				break;
+			case 3:
+				removeTrain();
+				break;
+			default:
+				break;
+			}
 		}
-	}
+		else {
+			choice = displayMenu(SMANAGETR_MENU_OPTIONS, SMANAGETR_MENU_OPTION_SIZE);
 
-	else if (admin == false) {
-		printf("Welcome to Train Manage page\n\n");
-		printf("Please select your operation\n");
-		printf("0: Exit\n");
-		printf("1:Edit Train Departure/Arrival Station\n");
-		printf("2:Edit Train Departure/Arrival Time\n");
-
-		scanf("%d", &selection);
-
-		switch (selection) {
-		case 0:
-			return(0);
-			break;
-
-		case 1:
-			staffEditTrainDA();
-			break;
-		case 2:
-			staffEditTrainDATime();
-			break;
-		default:break;
+			switch (choice) {
+			case 0:
+				return(0);
+				break;
+			case 1:
+				staffEditTrainDA();
+				break;
+			case 2:
+				staffEditTrainDATime();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	return(0);
@@ -224,6 +158,7 @@ int addTrain() {
 	//Use separate file for different train
 
 	Train trainToAdd = { .coach = {0} };
+	system("cls");
 
 	// trainID
 	do {
@@ -323,7 +258,6 @@ int addTrain() {
 	printf("Press any key to continue...\n");
 	rewind(stdin);
 	getchar(); // Wait for a key press
-	printf("Continuing...\n");
 
 	return(0);
 };
@@ -341,17 +275,29 @@ int adminEditTrain() {
 
 	// trainID
 	do {
-		printf("\tTrain ID to edit\t\t> ");
+		system("cls");
+		printf("Train ID to edit\n\t> ");
 		rewind(stdin);
 		if (scanf("%5[^\n]", &trainToEdit.trainID) != 1);
 		trainToEdit.trainID[0] = toupper(trainToEdit.trainID[0]);
 
-		// Check if ID exists
-		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToEdit.trainID);
-		if ((ePtr = fopen(filepath, "r")) == NULL) continue;
 
 		if (validateTrainID(trainToEdit.trainID)) break;
 	} while (printf("Invalid train ID, please try again.\n"));
+
+	// Check if ID exists
+	sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToEdit.trainID);
+	if ((ePtr = fopen(filepath, "r")) == NULL) {
+		system("cls");
+		printf("Train with ID [%s] does not exist.\n", trainToEdit.trainID);
+		printf("Press any key to continue...\n");
+		rewind(stdin);
+		getchar(); // Wait for a key press
+		return(0);
+	}
+
+
+
 	//Scanning to structure
 	fscanf(ePtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
 		trainToEdit.trainID,
@@ -364,24 +310,26 @@ int adminEditTrain() {
 		&trainToEdit.departureTime.minutes,
 		&trainToEdit.arrivalTime.hours,
 		&trainToEdit.arrivalTime.minutes);
-	// Display Train Information
-	printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
-	printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
-	printf("Departure Station\t> %s\n", trainToEdit.departureStation);
-	printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
-	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
-	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 
 	//close for reading
 	fclose(ePtr);
 
-
 	//loop for edit desired element
 	do {
+		// Display Train Information
+		system("cls");
+		printf("Train ID\t\t> %s\n", trainToEdit.trainID);
+		printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
+		printf("Departure Station\t> %s\n", trainToEdit.departureStation);
+		printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
+		printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
+		printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
+
 		choice = displayMenu(EDITTR_MENU_OPTIONS, EDITTR_MENU_OPTIONS_SIZE);
 		switch (choice) {
 		case 0:
-			return (0);
+			keepEdit = 'N';
+			continue;
 			break;
 		case 1:
 			do {
@@ -858,6 +806,7 @@ int viewAllTrain() {
 	FILE* schPtr;
 	Train trainSch;
 	int trainCount = 0;
+	system("cls");
 	printf("\n%-10s%-20s%-20s%-20s%-20s%-15s%-20s\n", "Train ID","Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
 	printf("%-125s\n", "========================================================================================================================");
 	for (int i = 0; i <= 9999; i++) {
@@ -1295,5 +1244,3 @@ int trainTimetable() {
 
 
 }
-
-

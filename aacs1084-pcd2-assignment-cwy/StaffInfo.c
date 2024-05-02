@@ -1,5 +1,6 @@
-#include "StaffInfo.h"
 #include "Util.h"
+#include "StaffInfo.h"
+#include "TrainSchedule.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,8 +10,8 @@
 
 #pragma warning(disable:4996)
 
-#define STAFF_MENU_OPTION_SIZE 4
-const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Manage Accounts", "Generate Staff Report" };
+#define STAFF_MENU_OPTION_SIZE 5
+const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Train Scheduling", "Manage Accounts", "Generate Staff Report" };
 #define STAFF_EDIT_OPTIONS_SIZE 5
 const char* STAFF_EDIT_OPTIONS[STAFF_EDIT_OPTIONS_SIZE] = { "IC", "Name", "Gender", "Phone Number", "Email" };
 #define STAFF_EDIT_OPTIONS_ADMIN_SIZE 8
@@ -675,11 +676,15 @@ int staffMenu() {
 		case 2: // Edit Account Information
 			editStaffInformationSubmenu(&currentStaff, &currentStaff);
 			break;
-		case 3: // Manage Accounts (Admin only)
+		case 3: // Train Scheduling Menu
+			trainSchedulingMenu(&currentStaff);
+			break;
+		case 4: // Manage Accounts (Admin only)
 			manageAccountsSubmenu(&currentStaff);
 			break;
-		case 4: // Generate Staff Report (Admin only)
+		case 5: // Generate Staff Report (Admin only)
 		{
+			// reset globals
 			staffCountFM[0] = 0;
 			staffCountFM[1] = 0;
 			totalSalary = 0;

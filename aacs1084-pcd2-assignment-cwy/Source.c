@@ -9,20 +9,26 @@
 
 #pragma warning(disable:4996)
 
-#define MAIN_MENU_OPTION_SIZE 5
-const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Member Login","Member Registration","trainScheduling","ticket booking"};
+#define MAIN_MENU_OPTION_SIZE 3
+const char *MAIN_MENU_OPTIONS[MAIN_MENU_OPTION_SIZE] = { "Staff Login", "Member Login","Member Registration" };
 
 int main(void) {
-	int menuChoice;
+	int choice;
 	
 	while(1)
 	{
 		system("cls");
-		int loginRetVal = 0;
-		menuChoice = displayMenu(MAIN_MENU_OPTIONS, MAIN_MENU_OPTION_SIZE);
+		printf(".-------..-------..-------..-------..-------..-------..-------.\n");
+		printf("|W.---. ||E.---. ||L.---. | C.---. ||O.---. ||M.---. ||E.---. |\n");
+		printf("| :/ \\: || (\\ /) || :/ \\: || :/ \\: || :/ \\: || (\\ /) || (\\ /) |\n");
+		printf("| :\\ /: || :\\ /: || (___) || :\\ /: || :\\ /: || :\\ /: || :\\ /: |\n");
+		printf("| '---'W|| '---'E|| '---'L|| '---'C|| '---'O|| '---'M|| '---'E|\n");
+		printf("`-------'`-------'`-------'`-------'`-------'`-------'`-------'\n");
+
+		choice = displayMenu(MAIN_MENU_OPTIONS, MAIN_MENU_OPTION_SIZE);
 		Staff tempStaff = { 0 };
 
-		switch (menuChoice) {
+		switch (choice) {
 		case 0: // Exit
 			return(0);
 			break;
@@ -34,12 +40,6 @@ int main(void) {
 			break;
 		case 3:
 			memberRegistration();
-			break;
-		case 4:
-			trainSchedulingModule();
-			break;
-		case 5:
-			ticketBookingMenu();
 			break;
 		default:
 			break;
