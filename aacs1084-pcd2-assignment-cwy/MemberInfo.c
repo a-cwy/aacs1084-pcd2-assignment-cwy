@@ -16,8 +16,8 @@
 const char* EDIT_INFO_MENU_OPTIONS[EDIT_INFO_OPTION_SIZE] = { "Edit Name", "Edit Phone No.","Edit Email","Edit Password" };
 #define WALLET_MENU_OPTION_SIZE 3
 const char* WALLET_MENU_OPTIONS[WALLET_MENU_OPTION_SIZE] = { "View Wallet Balance", "Top Up", "Member Level" };
-#define MEMBER_MENU_OPTION_SIZE 5
-const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info", "View Member Wallet", "Close Member Account", "Ticket Booking" };
+#define MEMBER_MENU_OPTION_SIZE 6
+const char* MEMBER_MENU_OPTIONS[MEMBER_MENU_OPTION_SIZE] = { "View Member Info", "Edit Member Info", "View Member Wallet", "Close Member Account", "Ticket Booking", "Booking History" };
 #define MEMBER_EDIT_OPTION_SIZE 4
 const char* MEMBER_EDIT_OPTIONS[MEMBER_EDIT_OPTION_SIZE] = { "Name", "Phone Number", "Email", "Password" };
 
@@ -120,14 +120,14 @@ int inputMemberInfo(MemberDetails* memberToInput) {
 }
 
 int displayMemberInfo(const MemberDetails* memberToDisplay) {
-	printf("Member Information \n");
-	printf("==================\n");
+	printf("==============================\n");
 	printf("Name\t\t: %s\n", memberToDisplay->name);
 	printf("Gender\t\t: %c\n", memberToDisplay->gender);
 	printf("IC No.\t\t: %s\n", memberToDisplay->icNo);
 	printf("Phone No.\t: %s\n", memberToDisplay->phoneNo);
 	printf("Email\t\t: %s\n", memberToDisplay->email);
 	printf("Member ID\t: %s\n", memberToDisplay->memberID);
+	printf("==============================\n");
 
 	return 0;
 }
@@ -216,12 +216,10 @@ int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 	int editChoice;
 	char confirmChanges;
 	while (1) {
+		// Display options for editing
 		system("cls");
 		displayMemberInfo(&tempMember);
-
-		printf("Edit Info\n");
-		printf("==================\n");
-		// Display options for editing
+		printf("\n\n");
 		editChoice = displayMenu(MEMBER_EDIT_OPTIONS, MEMBER_EDIT_OPTION_SIZE);
 
 		// Allow member to edit info until they choose to exit
@@ -261,13 +259,13 @@ int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 			break;
 		case 1: // Name
 			do {
-				printf("Name\t\t\t\t: ");
+				printf("\tName\t\t\t> ");
 				rewind(stdin);
 			} while (scanf("%[^\n]", tempMember.name) != 1);
 			break;
 		case 2: // Phone Number
 			do {
-				printf("Phone No (012-34567890)\t\t> ");
+				printf("\tPhone No (012-34567890)\t> ");
 				rewind(stdin);
 				if (scanf("%12s", tempMember.phoneNo) != 1) continue;
 				if (validatePhoneNumber(tempMember.phoneNo)) break;
@@ -275,7 +273,7 @@ int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 			break;
 		case 3: // Email
 			do {
-				printf("Email (abc@email.com)\t\t> ");
+				printf("\tEmail (abc@email.com)\t> ");
 				rewind(stdin);
 				if (scanf("%99[^\n]", tempMember.email) != 1) continue;
 				if (validateEmail(tempMember.email)) break;
@@ -283,7 +281,7 @@ int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 			break;
 		case 4: // Password
 			do {
-				printf("Password (8 - 20 character)\t> ");
+				printf("\tPassword (8 - 20 character)\t> ");
 				rewind(stdin);
 				if (scanf("%20s", tempMember.password) != 1) continue;
 				if (validateMemberPassword(tempMember.password)) break;
@@ -368,8 +366,7 @@ bool selectBankCard(MemberDetails* member) {
 			return(true);//payment successful 
 		}
 		
-		printf("Wrong pin number !\n");
-		keyPress();
+		printf("Wrong PIN.\n");
 		
 		break;
 	case 2: //add new card
@@ -380,18 +377,16 @@ bool selectBankCard(MemberDetails* member) {
 
 		if (validateCardNumber(cardNumber) == false) {
 			printf("Invalid card number.\n");
-			keyPress();
 			break;
 		}
 		
 		//get card pin if valid number
-		printf("\nPlease enter 6-digit pin \t\t: ");//add pin
+		printf("\nPlease enter 6-digit pin\t> ");//add pin
 		rewind(stdin);
 		while (scanf("%6s", pin) != 1);
 
 		if (validatePin(pin) == false) {
-			printf("Wrong format for pin.\nYou will exit now ......\n");
-			keyPress();
+			printf("Wrong PIN.\n");
 			break;
 		}
 
@@ -399,17 +394,15 @@ bool selectBankCard(MemberDetails* member) {
 		strcpy(member->cardNumber, cardNumber);
 		strcpy(member->pin, pin);
 		if (writeFile(member) == 0) {
-			printf("Successfully added card.");
+			printf("Successfully added card.\n");
 		}
 		else {
-			printf("Failed to add card.");
+			printf("Failed to add card.\n");
 		}
-		keyPress();
 		return(true);
 		break;
 	default:
 		printf("Invalid option.\n");
-		keyPress();
 		break;
 	}
 
