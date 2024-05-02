@@ -183,6 +183,19 @@ int memberRegistration() {
 	return 0;
 }
 
+int displayMemberInfo(const MemberDetails* member) {
+	printf("\nMember Information \n");
+	printf("==================\n");
+	printf("Name\t\t: %s\n", member->name);
+	printf("Gender\t\t: %c\n", member->gender);
+	printf("IC No.\t\t: %s\n", member->icNo);
+	printf("Phone No.\t: %s\n", member->phoneNo);
+	printf("Email\t\t: %s\n", member->email);
+	printf("Member ID\t: %s\n", member->memberID);
+
+	return 0;
+}
+
 int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 	system("cls");
 	// Password check
