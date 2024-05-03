@@ -16,10 +16,6 @@
 const char* TICKET_MENU_OPTIONS[TICKET_MENU_OPTION_SIZE] = { "Display All Train Schedule", "Book Ticket", 
 "View All Ticket", "Search Ticket" , "Change Seat for Ticket", "Refund Ticket" };
 
-void report() {
-    
-}
-
 bool checkSeatAvailabilityToChange(char* trainID, char updateCoach, int updateRow, int updateCol) {
     FILE* trainFP;
     char filepath[100];
@@ -335,7 +331,7 @@ void changeSeat(MemberDetails* member) {
             if ((strcmp(booking.bookingID, changeBooking.bookingID) == 0) && strcmp(booking.status, "Success") == 0) {
                 found = true;
                 printf("\n");
-                printf("Edit seat for ticket below ?:\n");
+                printf("Edit seat for ticket below:\n");
                 printf("Booking ID -> %s\n", booking.bookingID);
                 printf("Booking Date -> %02d/%02d/%04d\n", booking.bookingDate.day,
                     booking.bookingDate.month, booking.bookingDate.year);
@@ -382,6 +378,7 @@ void changeSeat(MemberDetails* member) {
             else printf("Invalid input. Please enter a number between 1 and 4.\n");
         }
 
+        printf("\n");
         printf("Change seat to :\n");
         printf("Coach : %c\n", coachLetterInput);
         printf("Row : %d\n", rowInput);
