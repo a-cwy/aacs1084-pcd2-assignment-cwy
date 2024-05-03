@@ -12,9 +12,51 @@
 
 #pragma warning(disable:4996)
 
-#define TICKET_MENU_OPTION_SIZE 6
+#define TICKET_MENU_OPTION_SIZE 7
 const char* TICKET_MENU_OPTIONS[TICKET_MENU_OPTION_SIZE] = { "Display All Train Schedule", "Book Ticket", 
-"View All Ticket", "Search Ticket" , "Change Seat for Ticket", "Refund Ticket" };
+"View All Ticket", "Search Ticket" , "Change Seat for Ticket", "Refund Ticket", "Booking Report"};
+
+int salesCount, refundCount;
+int totalEarning;
+
+int analyzeBookingFiles(const char* filepath) {
+	// Read data from file
+	Booking booking;
+	FILE* bookingFP;
+	bookingFP = fopen(filepath, "r");
+
+	while (fscanf(bookingFP, "%[^|]|%02d/%02d/%04d|%02d/%02d/%04d|%f|%[^|]|%[^|]|%s\n",
+		booking.bookingID, &booking.bookingDate.day,
+		&booking.bookingDate.month, &booking.bookingDate.year,
+		&booking.departureDate.day, &booking.departureDate.month,
+		&booking.departureDate.year, &booking.price, booking.paymentType,
+		booking.status, booking.memberID) != EOF) {
+
+		if (strcmp(booking.status, "Success") == 0) {
+			salesCount++;
+			totalEarning = totalEarning + booking.price;
+		}
+		else {
+			refundCount++;
+		}
+	}
+
+	return(0);
+}
+
+void generateBookingReport() {
+	system("cls");
+	printf("Booking report:\n");
+	printf("==================================================\n");
+	printf("Total sales count\t> %d\n", salesCount);
+	printf("\n");
+	printf("Total refund count\t> %d\n", refundCount);
+	printf("\n");
+	printf("Total earning\t> %d\n", totalEarning);
+	printf("\n");
+
+	return 0;
+}
 
 bool checkSeatAvailabilityToChange(char* trainID, char updateCoach, int updateRow, int updateCol) {
     FILE* trainFP;
@@ -342,7 +384,10 @@ void changeSeat(MemberDetails* member) {
                 printf("Status -> %s\n", booking.status);
                 printf("Member ID -> %s\n", booking.memberID);
                 printf("\n");
-            }
+			}
+			else if ( (strcmp(booking.bookingID, changeBooking.bookingID) == 0) && (strcmp(booking.status, "Refunded") == 0) ){
+				printf("Ticket is already refunded!\n");
+			}
             tempBooking[numBookings] = booking; // Copy full booking details
             numBookings++;
         }
@@ -1177,6 +1222,18 @@ int ticketBookingMenu(MemberDetails* member) {
         case 6:
             refundTicket(member);
             break;
+		case 7:
+			salesCount = 0;
+			refundCount = 0;
+			totalEarning = 0;
+
+			getFilesFromDirectory("data\\text\\ticketBooking", *analyzeBookingFiles);
+			generateBookingReport();
+
+			printf("\nPress enter to go back.");
+			rewind(stdin);
+			if (getc(stdin) == 0); 
+			break;
         default:
             printf("SORRY INVALID CHOICE! \n");
             printf("PLEASE CHOOSE FROM 1-4 \n\n\n");
