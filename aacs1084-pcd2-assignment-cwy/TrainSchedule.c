@@ -30,6 +30,8 @@ const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", 
 const char* SMANAGETR_MENU_OPTIONS[SMANAGETR_MENU_OPTION_SIZE] = { "Edit Train Departure/Arrival Station", "Edit Train Departure/Arrival Time" };
 
 
+//for view all train
+int trainCount;
 //for search by date timetable
 int totalAvailableSeats;
 int totalSeatsBooked;
@@ -65,6 +67,7 @@ int trainTimetable();
 void displayByDate(const char* filepath, const int* day, const int* month, const int* year);
 int getFileWithDateFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath, const int* day, const int* month, const int* year));
 bool compareDate(const Train* trainToCompare, const int* day, const int* month, const int* year);
+
 
 
 int trainSchedulingMenu(const Staff* currentStaff) {
@@ -220,10 +223,15 @@ int addTrain() {
 	printf("Arrival Station\t\t> %s\n", trainToAdd.arrivalStation);
 	printf("Departure Time\t\t> %02d:%02d\n", trainToAdd.departureTime.hours, trainToAdd.departureTime.minutes);
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToAdd.arrivalTime.hours, trainToAdd.arrivalTime.minutes);
-	printf("\nConfirm to enter into file? (Y/N)\t> ");
-	rewind(stdin);
-	scanf("%c", &confirm);
-	if (toupper(confirm) == 'Y') {
+	
+	do{
+		printf("\nConfirm to enter into file? (Y/N)\t> ");
+		rewind(stdin);
+		scanf("%c", &confirm);
+	} while (!validateChoice(confirm));
+
+
+	if (toupper(confirm)=='Y') {
 		FILE* TPtr;
 		TPtr = fopen(filepath, "w");
 		fprintf(
@@ -254,10 +262,18 @@ int addTrain() {
 
 		printf("\nFinished writing file data to [%s]\n", filepath);
 		fclose(TPtr);
+		printf("Press any key to continue...\n");
+		rewind(stdin);
+		getchar(); // Wait for a key press
 	}
-	printf("Press any key to continue...\n");
-	rewind(stdin);
-	getchar(); // Wait for a key press
+	else {
+		printf("Adding cancelled\n");
+		printf("Press any key to continue...\n");
+		rewind(stdin);
+		getchar(); // Wait for a key press
+
+	}
+
 
 	return(0);
 };
@@ -370,12 +386,15 @@ int adminEditTrain() {
 
 		}
 
-		printf("\nCONTINUE to edit file? (Y/N)\t> ");
-		rewind(stdin);
-		scanf("%c", &keepEdit);
+		
+		do {
+			printf("\nCONTINUE to edit file? (Y/N)\t> ");
+			rewind(stdin);
+			scanf("%c", &keepEdit);
+		} while (!validateChoice(keepEdit));
 
 
-	} while (toupper(keepEdit) != 'N');
+	} while (toupper(keepEdit)!='N');
 
 	// Display for confirmation
 	printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
@@ -385,10 +404,12 @@ int adminEditTrain() {
 	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 
-	printf("\nCONFIRM to edit file?(Y/N)\t> ");
-	rewind(stdin);
-	scanf("%c", &confirm);
 
+	do {
+		printf("\nCONFIRM to edit file?(Y/N)\t> ");
+		rewind(stdin);
+		scanf("%c", &confirm);
+	} while (!validateChoice(confirm));
 
 	if (toupper(confirm) == 'Y') {
 		//overwrite original file
@@ -519,9 +540,11 @@ int staffEditTrainDA() {
 
 		}
 
-		printf("\nCONTINUE to edit file? (Y/N)\t> ");
-		rewind(stdin);
-		scanf("%c", &keepEdit);
+		do {
+			printf("\nCONFIRM to edit file?(Y/N)\t> ");
+			rewind(stdin);
+			scanf("%c", &keepEdit);
+		} while (!validateChoice(keepEdit));
 
 
 	} while (toupper(keepEdit) != 'N');
@@ -534,9 +557,11 @@ int staffEditTrainDA() {
 	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 
-	printf("\nCONFIRM to edit file?(Y/N)\t> ");
-	rewind(stdin);
-	scanf("%c", &confirm);
+	do {
+		printf("\nCONFIRM to edit file?(Y/N)\t> ");
+		rewind(stdin);
+		scanf("%c", &confirm);
+	} while (!validateChoice(toupper(confirm)));
 
 
 	if (toupper(confirm) == 'Y') {
@@ -598,7 +623,6 @@ int staffEditTrainDATime() {
 	char keepEdit;
 	char confirm;
 	int choice;
-	//Use separate file for different train
 	FILE* ePtr;
 
 
@@ -617,6 +641,7 @@ int staffEditTrainDATime() {
 
 		if (validateTrainID(trainToEdit.trainID)) break;
 	} while (printf("Invalid train ID, please try again.\n"));
+
 	//Scanning to structure
 	fscanf(ePtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
 		trainToEdit.trainID,
@@ -671,9 +696,11 @@ int staffEditTrainDATime() {
 
 		}
 
-		printf("\nCONTINUE to edit file? (Y/N)\t> ");
-		rewind(stdin);
-		scanf("%c", &keepEdit);
+		do {
+			printf("\CONTINUE to edit file?(Y/N)\t> ");
+			rewind(stdin);
+			scanf("%c", &keepEdit);
+		} while (!validateChoice(keepEdit));
 
 
 	} while (toupper(keepEdit) != 'N');
@@ -685,13 +712,13 @@ int staffEditTrainDATime() {
 	printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
 	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
+	do {
+		printf("\nCONFIRM to edit file?(Y/N)\t> ");
+		rewind(stdin);
+		scanf("%c", &confirm);
+	} while (!validateChoice(toupper(confirm)));
 
-	printf("\nCONFIRM to edit file?(Y/N)\t> ");
-	rewind(stdin);
-	scanf("%c", &confirm);
-
-
-	if (toupper(confirm) == 'Y') {
+	if (toupper(confirm)== 'Y') {
 		//overwrite original file
 		FILE* TPtr;
 		TPtr = fopen(filepath, "w");
@@ -787,10 +814,11 @@ int searchTrain() {
 		printf("Departure Time\t\t> %02d:%02d\n", trainToSearch.departureTime.hours, trainToSearch.departureTime.minutes);
 		printf("Arrival Time\t\t> %02d:%02d\n", trainToSearch.arrivalTime.hours, trainToSearch.arrivalTime.minutes);
 		printf("Available Seats\t\t> %d", availableSeats(filepath));
-
-		printf("\nSearch another?(Y/N)> ");
-		rewind(stdin);
-		scanf("%c", &keepSearch);
+		do {
+			printf("\nSearch another?(Y/N)\t> ");
+			rewind(stdin);
+			scanf("%c", &keepSearch);
+		} while (!validateChoice(keepSearch));
 	} while (toupper(keepSearch) != 'N');
 
 	fclose(sPtr);
@@ -800,43 +828,47 @@ int searchTrain() {
 
 }
 
+int viewAllFiles(const char*filepath) {
+	// Read data from file
+	Train trainToView = { .coach = {0} };
+	FILE* trainPtr;
+	trainPtr = fopen(filepath, "r");
+	if ((trainPtr = fopen(filepath, "r")) == NULL) return(0);
+	fscanf(trainPtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
+		trainToView.trainID,
+		&trainToView.departureDate.day,
+		&trainToView.departureDate.month,
+		&trainToView.departureDate.year,
+		trainToView.departureStation,
+		trainToView.arrivalStation,
+		&trainToView.departureTime.hours,
+		&trainToView.departureTime.minutes,
+		&trainToView.arrivalTime.hours,
+		&trainToView.arrivalTime.minutes);
+
+
+	int seatAvailable = availableSeats(filepath);
+	printf("%-10s%02d/%02d/%04d\t      %-20s%-20s%02d:%02d                %02d:%02d\t\t%d\n",
+		trainToView.trainID, trainToView.departureDate.day, trainToView.departureDate.month, trainToView.departureDate.year,
+		trainToView.departureStation, trainToView.arrivalStation,
+		trainToView.departureTime.hours, trainToView.departureTime.minutes,
+		trainToView.arrivalTime.hours, trainToView.arrivalTime.minutes,
+		seatAvailable);
+	trainCount++;
+	fclose(trainPtr);
+}
+
 int viewAllTrain() {
 	char filepath[64];
 	char trainID[6];
 	FILE* schPtr;
 	Train trainSch;
-	int trainCount = 0;
+	trainCount = 0;
 	system("cls");
 	printf("\n%-10s%-20s%-20s%-20s%-20s%-15s%-20s\n", "Train ID","Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
 	printf("%-125s\n", "========================================================================================================================");
-	for (int i = 0; i <= 9999; i++) {
-		sprintf(trainID, "T%000d", i);
-		sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainID);
-		if ((schPtr = fopen(filepath, "r")) == NULL)continue;
-		fscanf(schPtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
-			trainSch.trainID,
-			&trainSch.departureDate.day,
-			&trainSch.departureDate.month,
-			&trainSch.departureDate.year,
-			trainSch.departureStation,
-			trainSch.arrivalStation,
-			&trainSch.departureTime.hours,
-			&trainSch.departureTime.minutes,
-			&trainSch.arrivalTime.hours,
-			&trainSch.arrivalTime.minutes);
-
-
-		int seatAvailable = availableSeats(filepath);
-		printf("%-10s%02d/%02d/%04d\t      %-20s%-20s%02d:%02d                %02d:%02d\t\t%d\n",
-			trainSch.trainID, trainSch.departureDate.day, trainSch.departureDate.month, trainSch.departureDate.year,
-			trainSch.departureStation, trainSch.arrivalStation,
-			trainSch.departureTime.hours, trainSch.departureTime.minutes,
-			trainSch.arrivalTime.hours, trainSch.arrivalTime.minutes,
-			seatAvailable);
-		trainCount++;
-		fclose(schPtr);
-
-	}
+	
+	getFilesFromDirectory("data\\text\\trainSchedule", *viewAllFiles);
 	printf("Total %d train listed\n\n", trainCount);
 	printf("Press any key to continue...\n");
 	rewind(stdin);
@@ -862,12 +894,20 @@ int removeTrain() {
 		if (scanf("%5[^\n]", &trainToRemove.trainID) != 1);
 		trainToRemove.trainID[0] = toupper(trainToRemove.trainID[0]);
 
-		// Check if ID exists
-		sprintf(filepath, "data/text/trainSchedule/%s.txt", trainToRemove.trainID);
-		if ((rPtr = fopen(filepath, "r")) == NULL) continue;
-
+	
 		if (validateTrainID(trainToRemove.trainID)) break;
 	} while (printf("Train ID does not exist, please try again.\n"));
+
+	// Check if ID exists
+	sprintf(filepath, "data\\text\\trainSchedule\\%s.txt", trainToRemove.trainID);
+	if ((rPtr = fopen(filepath, "r")) == NULL) {
+		system("cls");
+		printf("Train with ID [%s] does not exist.\n", trainToRemove.trainID);
+		printf("Press any key to continue...\n");
+		rewind(stdin);
+		getchar(); // Wait for a key press
+		return(0);
+	}
 
 	fscanf(rPtr, "%[^|]|%02d/%02d/%04d|%[^|]|%[^|]|%02d:%02d|%02d:%02d|%*[^|]",
 		trainToRemove.trainID,
@@ -891,13 +931,12 @@ int removeTrain() {
 	printf("Arrival Time\t\t> %02d:%02d\n", trainToRemove.arrivalTime.hours, trainToRemove.arrivalTime.minutes);
 
 	do {
-		printf("Confirm to remove? (Y/N) > ");
+		printf("\nCONFIRM to remove file?(Y/N)\t> ");
 		rewind(stdin);
 		scanf("%c", &confirm);
-		confirm = toupper(confirm);
-	} while (confirm != 'N' && confirm != 'Y');
+	} while (!validateChoice(confirm));
 
-	if (confirm == 'Y') {
+	if (toupper(confirm) == 'Y') {
 		fclose(rPtr);
 		remove(filepath);
 		printf("Succesfully remove [%s]\n", filepath);
@@ -1151,7 +1190,7 @@ bool compareDate(const Train* trainToCompare, const int* day, const int* month, 
 	return false;
 };
 
-void displayByDate(const char* filepath, const int* day, const int* month, const int* year) {
+void displayByDate(const char* filepath) {
 	Train trainToCompare;
 	FILE* cPtr;
 	cPtr = fopen(filepath, "r");
@@ -1186,54 +1225,21 @@ void displayByDate(const char* filepath, const int* day, const int* month, const
 	return (0);
 }
 
-int getFileWithDateFromDirectory(const char* cSearchDir, int (*callback)(const char* filepath, const int* day, const int* month, const int* year)) {
-	// Convert searchDir to wchar_t
-	wchar_t wSearchDir[1024];
-	mbstowcs(wSearchDir, cSearchDir, 1024);
-
-	WIN32_FIND_DATA file;
-	HANDLE searchHandle = NULL;
-	wchar_t searchPath[2048];
-
-	// Search all files and folders in directory
-	wsprintf(searchPath, L"%s\\*.*", wSearchDir);
-
-	// Check if files exists in the directory, return 1 if no files exist
-	if ((searchHandle = FindFirstFile(searchPath, &file)) == INVALID_HANDLE_VALUE) return(1);
-
-	do {
-		// First two files always "." and ".."
-		if (wcscmp(file.cFileName, L".") == 0 || wcscmp(file.cFileName, L"..") == 0) continue;
-
-		// Get filepath of first file in searchDir
-		wsprintf(searchPath, L"%s\\%s", wSearchDir, file.cFileName);
-
-		// Check if entity is a file or folder
-		if (file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
-
-		// Run callback function with filepath
-		char filepath[2048];
-		wcstombs(filepath, &searchPath, 2048);
-		(*callback)(filepath, day, month, year);
-
-	} while (FindNextFile(searchHandle, &file));
-
-	FindClose(searchHandle);
-
-	return(0);
-}
-
 int trainTimetable() {
-	//day month year declared at global var cuz keep propmpting error when i declare it locally
-	printf("Enter Date(DD/MM/YYYY)> ");
-	scanf("%02d/%02d/%04d", &day, &month, &year);
-
+	day = 0;
+	month = 0;
+	year = 0;
+	do {
+		printf("\Enter date (DD/MM/YYYY)\t> ");
+		rewind(stdin);
+		if (scanf("%02d/%02d/%04d", &day, &month, &year) != 3) continue;
+	} while (!validateDate(&day,&month,&year));
 
 
 	printf("\t\tTrain Schedule for %02d/%02d/%04d\n", day, month, year);
 	printf("\n%-10s%-20s%-20s%-20s%-20s%-15s%-20s\n", "Train ID", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
 	printf("%-125s\n", "========================================================================================================================");
-	getFileWithDateFromDirectory("data\\text\\trainSchedule", displayByDate, &day, &month, &year);
+	getFilesFromDirectory("data\\text\\trainSchedule", *displayByDate);
 
 	printf("Press any key to continue...\n");
 	rewind(stdin);

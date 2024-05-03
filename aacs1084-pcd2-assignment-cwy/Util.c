@@ -241,5 +241,14 @@ bool validateDate(const int* day, const int* month, const int* year)
 	return true;
 }
 
+bool validateChoice(const char* choice) {
+
+	if (toupper(choice) == 'Y' || toupper(choice) == 'N') {
+		return(true);
+	}
+	else {
+		return(false);
+	}
+}
 
 
