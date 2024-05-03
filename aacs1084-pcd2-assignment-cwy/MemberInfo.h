@@ -2,18 +2,19 @@
 
 #include <stdbool.h>
 
-typedef struct {
+typedef struct MemberDetails {
 	char name[20];
 	char gender;//(F/M)
 	char icNo[15]; //(123456 - 12 - 1234)
 	char phoneNo[13];//(012-34567890) or (011-12345678)
 	char email[100];//(abc@email.com)
-	char password[20];//%s (8 - 20 character)
+	char password[21];//%s (8 - 20 character)
 	char memberID[6];//random 5digit
-	float walletBalance;
-	char cardNumber[20];//(0000 0000 0000 0000)
+	double walletBalance;
+	char cardNumber[17];//(16digit)
 	char pin[7];//(6digit)
 	int memberLv;
+	int memberPoint;
 } MemberDetails;
 
 // Menu function for member
@@ -21,4 +22,4 @@ int memberLogin();
 int memberRegistration();
 
 //for ticketBooking module to call function
-bool payment(MemberDetails* member, float amount);
+bool payment(MemberDetails* member, double amount);

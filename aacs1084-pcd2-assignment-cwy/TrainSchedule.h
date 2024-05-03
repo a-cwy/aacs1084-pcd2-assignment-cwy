@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StaffInfo.h"
+
 #include <stdbool.h>
 
 /*
@@ -43,4 +45,4 @@ typedef struct Train {
 // FUNCTIONS
 */
 
-int addTrain();
+int trainSchedulingMenu(const Staff* currentStaff);

@@ -53,3 +53,6 @@ bool validatePin(const char* pin);
 bool isLeap(const int* year);
 
 bool validateDate(const int* day, const int* month, const int* year);
+
+//Check (Y/N)
+bool validateChoice(const char* choice);

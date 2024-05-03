@@ -185,7 +185,7 @@ bool validateMemberPassword(const char* password) {
 }
 
 bool validateCardNumber(const char* cardNumber) {
-	for (int i = 0;i < 20;i++) {
+	for (int i = 0;i < 16;i++) {
 		if (!isdigit(cardNumber[i])) return(false);
 	}
 	return(true);
@@ -241,5 +241,14 @@ bool validateDate(const int* day, const int* month, const int* year)
 	return true;
 }
 
+bool validateChoice(const char* choice) {
+
+	if (toupper(choice) == 'Y' || toupper(choice) == 'N') {
+		return(true);
+	}
+	else {
+		return(false);
+	}
+}
 
 
