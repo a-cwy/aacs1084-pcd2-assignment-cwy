@@ -24,12 +24,19 @@ const char* EDITTR_MENU_OPTIONS[EDITTR_MENU_OPTIONS_SIZE] = { "Departure Date", 
 //Menu for report
 #define TSCHER_MENU_OPTION_SIZE 2
 const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" };
-//Menu for manage train
+//Menu for Admin manage train
 #define AMANAGETR_MENU_OPTION_SIZE 3
 const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", "Edit Train", "Remove Train" };
 //Menu for Staff edit train
 #define SMANAGETR_MENU_OPTION_SIZE 2
 const char* SMANAGETR_MENU_OPTIONS[SMANAGETR_MENU_OPTION_SIZE] = { "Edit Train Departure/Arrival Station", "Edit Train Departure/Arrival Time" };
+//Submenu for staff edit train
+#define SMStation_MANAGETR_MENU_OPTION_SIZE 2
+const char* SMStation_MANAGETR_MENU_OPTION[SMStation_MANAGETR_MENU_OPTION_SIZE] = { "Departure Station", "Arrival Arrival" };
+//Submenu for staff edit train
+#define SMTime_MANAGETR_MENU_OPTION_SIZE 2
+const char* SMTime_MANAGETR_MENU_OPTION[SMTime_MANAGETR_MENU_OPTION_SIZE] = { "Departure Time", "Arrival Time" };
+
 
 
 //for view all train
@@ -351,7 +358,7 @@ int adminEditTrain() {
 			break;
 		case 1:
 			do {
-				printf("\tNew Departure Date\t> ");
+				printf("\tNew Departure Date(DD/MM/YYYY)\t> ");
 				rewind(stdin);
 				if (scanf("%02d/%02d/%04d", &trainToEdit.departureDate.day, &trainToEdit.departureDate.month, &trainToEdit.departureDate.year) != 3) continue;
 			} while (!validateDate(&trainToEdit.departureDate.day, &trainToEdit.departureDate.month, &trainToEdit.departureDate.year));
@@ -479,7 +486,7 @@ int staffEditTrainDA() {
 
 
 	Train trainToEdit = { .coach = {0} };
-
+	system("cls");
 	// trainID
 	do {
 		printf("\tTrain ID to edit\t\t> ");
@@ -519,11 +526,11 @@ int staffEditTrainDA() {
 	//loop for edit desired element
 	do {
 
-		printf("Edit Menu\n\n");
-		printf("1: Departure Station\n");
-		printf("2: Arrival Station\n");
-		scanf("%d", &choice);
+		choice = displayMenu(SMStation_MANAGETR_MENU_OPTION, SMStation_MANAGETR_MENU_OPTION_SIZE);
 		switch (choice) {
+		case 0:
+			return(0);
+			break;
 		case 1:
 			do {
 				printf("\tNew Departure Station\t> ");
@@ -543,7 +550,7 @@ int staffEditTrainDA() {
 		}
 
 		do {
-			printf("\nCONFIRM to edit file?(Y/N)\t> ");
+			printf("\nCONTINUE to edit file?(Y/N)\t> ");
 			rewind(stdin);
 			scanf("%c", &keepEdit);
 		} while (!validateChoice(keepEdit));
@@ -629,7 +636,7 @@ int staffEditTrainDATime() {
 
 
 	Train trainToEdit = { .coach = {0} };
-
+	system("cls");
 	// trainID
 	do {
 		printf("\tTrain ID to edit\t\t> ");
@@ -671,12 +678,11 @@ int staffEditTrainDATime() {
 	//loop for edit desired element
 	do {
 
-		printf("Edit Menu\n\n");
-		printf("1: Departure Time\n");
-		printf("2: Arrival Time\n");
-
-		scanf("%d", &choice);
+		choice = displayMenu(SMTime_MANAGETR_MENU_OPTION, SMTime_MANAGETR_MENU_OPTION_SIZE);
 		switch (choice) {
+		case 0:
+			return(0);
+			break;
 		case 1:
 			do {
 				printf("\tNew Departure time (HH:MM)\t> ");
@@ -1231,14 +1237,16 @@ int trainTimetable() {
 	day = 0;
 	month = 0;
 	year = 0;
+
+	system("cls");
 	do {
-		printf("\Enter date (DD/MM/YYYY)\t> ");
+		printf("\tEnter date (DD/MM/YYYY)\t> ");
 		rewind(stdin);
 		if (scanf("%02d/%02d/%04d", &day, &month, &year) != 3) continue;
 	} while (!validateDate(&day,&month,&year));
 
 
-	printf("\t\tTrain Schedule for %02d/%02d/%04d\n", day, month, year);
+	printf("\t\t\tTrain Schedule for %02d/%02d/%04d\n", day, month, year);
 	printf("\n%-10s%-20s%-20s%-20s%-20s%-15s%-20s\n", "Train ID", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time", "Available Seats");
 	printf("%-125s\n", "========================================================================================================================");
 	getFilesFromDirectory("data\\text\\trainSchedule", *displayByDate);
