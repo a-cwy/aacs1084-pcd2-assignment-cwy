@@ -1044,8 +1044,13 @@ int processBookings(Train* train, char* filepath, MemberDetails* member) {
 				strcpy(status, "Success");
 				break;
 			}
-			else
-				printf("Payment failed");
+			else {
+				printf("Payment failed\n"); 
+				printf("\nPress enter to go back.");
+				rewind(stdin);
+				if (getc(stdin) == 0);
+				return 0; //return once payment failed
+			}
 		} while (payment(member, ticketPriceTotal) == 1);
 
 		//loop data into booking struct
