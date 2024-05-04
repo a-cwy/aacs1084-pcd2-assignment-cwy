@@ -1,7 +1,7 @@
 #include "Util.h"
 #include "MemberInfo.h"
 #include "TicketBooking.h"
-		 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -34,7 +34,7 @@ int generateMemberID(char* memberID) {
 	bool exists = false; //check is the id exist already?
 
 	do {
-		srand((unsigned int) time(NULL));
+		srand((unsigned int)time(NULL));
 		for (int j = 1; j < 5; j++) {
 			memberID[j] = '0' + (rand() % 10); // Randomly populate tempMemberID with 0 - 9
 		}
@@ -115,19 +115,19 @@ int inputMemberInfo(MemberDetails* memberToInput) {
 	strcpy(memberToInput->cardNumber, "aaaaaaaaaaaaaaaa");
 	strcpy(memberToInput->pin, "000000");
 	memberToInput->memberLv = 0;
-
+	memberToInput->memberPoint = 0;
 	return(0);
 }
 
 int displayMemberInfo(const MemberDetails* memberToDisplay) {
-	printf("==============================\n");
+	printf("===================================\n");
 	printf("Name\t\t: %s\n", memberToDisplay->name);
 	printf("Gender\t\t: %c\n", memberToDisplay->gender);
 	printf("IC No.\t\t: %s\n", memberToDisplay->icNo);
 	printf("Phone No.\t: %s\n", memberToDisplay->phoneNo);
 	printf("Email\t\t: %s\n", memberToDisplay->email);
 	printf("Member ID\t: %s\n", memberToDisplay->memberID);
-	printf("==============================\n");
+	printf("===================================\n");
 
 	return 0;
 }
@@ -251,7 +251,7 @@ int editMemberInfoSubmenu(MemberDetails* memberToEdit) {
 				fread(memberToEdit, sizeof(MemberDetails), 1, iMemFP);
 				fclose(iMemFP);
 			}
-			
+
 			printf("Changes saved.\n");
 			keyPress();
 
@@ -322,7 +322,7 @@ int deleteMemberAccount(MemberDetails* memberToDelete) {
 	//confirm password
 	char tempPassword[21] = { 0 };
 	printf("\nPlease enter your password to confirm your action.\t: ");
-	while(scanf("%20s", tempPassword) != 1);
+	while (scanf("%20s", tempPassword) != 1);
 	if (strcmp(tempPassword, memberToDelete->password) == 0) {//if password correct , del account
 		remove(filepath);
 		printf("Account deleted!\n");
@@ -357,7 +357,7 @@ bool selectBankCard(MemberDetails* member) {
 			keyPress();
 			break;
 		}
-		
+
 		//get card pin and check
 		printf("Please enter 6-digit pin \t: ");
 		while (scanf("%6s", pin) != 1);
@@ -365,9 +365,9 @@ bool selectBankCard(MemberDetails* member) {
 		if (strcmp(pin, member->pin) == 0) {
 			return(true);//payment successful 
 		}
-		
+
 		printf("Wrong PIN.\n");
-		
+
 		break;
 	case 2: //add new card
 		//get card number
@@ -379,7 +379,7 @@ bool selectBankCard(MemberDetails* member) {
 			printf("Invalid card number.\n");
 			break;
 		}
-		
+
 		//get card pin if valid number
 		printf("\nPlease enter 6-digit pin\t> ");//add pin
 		rewind(stdin);
@@ -398,8 +398,8 @@ bool selectBankCard(MemberDetails* member) {
 		}
 		else {
 			printf("Failed to add card.\n");
+			return(true);
 		}
-		return(true);
 		break;
 	default:
 		printf("Invalid option.\n");
@@ -417,7 +417,9 @@ bool payment(MemberDetails* member, double amount) {
 	if (member->walletBalance >= amount) {
 		printf("Wallet balance is used!\n");
 		member->walletBalance -= amount;
-		member->memberPoint += (int) floor(amount);
+		member->memberPoint += (int)floor(amount);
+		printf("point:%d\n", member->memberPoint);
+		system("pause");
 		writeFile(member); // Update wallet balance and point
 		printf("Payment successful.\n");
 		printf("Remaining wallet balance: %.2lf\n", member->walletBalance);
@@ -428,7 +430,7 @@ bool payment(MemberDetails* member, double amount) {
 		bool checkPayment = selectBankCard(member);
 
 		if (checkPayment == true) {
-			member->memberPoint += (int)amount;
+			member->memberPoint += (int)floor(amount);
 			writeFile(member); // Update point
 			printf("Payment successful.\n");
 			keyPress();
@@ -449,8 +451,8 @@ int memberLevel(MemberDetails* member) {
 
 	//printf member level
 	printf("Member Level : Lv%d\n", member->memberLv);
-	printf("Member Point : %dpoint\n",member->memberPoint);
-	printf("Please exchange gift at counter with your point\n\n!");
+	printf("Member Point : %d points\n", member->memberPoint);
+	printf("Please exchange gift at counter with your point!\n\n");
 
 	//max level 5 , if exceed cant upgrade
 	if (member->memberLv > 5) {
@@ -586,7 +588,7 @@ int bookingHistory(const MemberDetails* member) {
 	return 0;
 }
 
-int walletMenu( MemberDetails* member) {
+int walletMenu(MemberDetails* member) {
 	int select;
 	do {
 		system("cls");
@@ -637,7 +639,7 @@ int memberMenu(MemberDetails* member) {
 			walletMenu(member);
 			break;
 		case 4: // Close Account
-			if(deleteMemberAccount(member) == 1) return(1); // if successfully deleted, leave menu
+			if (deleteMemberAccount(member) == 1) return(1); // if successfully deleted, leave menu
 			break;
 		case 5: // Ticket Booking Menu
 			ticketBookingMenu(member);
@@ -657,7 +659,7 @@ int memberMenu(MemberDetails* member) {
 int memberLogin() {
 	char loginID[6];
 	char loginPassword[21] = "";
-	
+
 	system("cls");
 	printf("Login :\n");
 	do {
@@ -669,7 +671,7 @@ int memberLogin() {
 		printf("\tPassword : ");
 		rewind(stdin);
 	} while (scanf("%40[^\n]", loginPassword) != 1);
-	
+
 	//get member file
 	FILE* memberFP;
 	char filepath[128] = "";
