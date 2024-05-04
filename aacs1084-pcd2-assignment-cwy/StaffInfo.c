@@ -10,8 +10,8 @@
 
 #pragma warning(disable:4996)
 
-#define STAFF_MENU_OPTION_SIZE 5
-const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Train Scheduling", "Manage Accounts", "Generate Staff Report" };
+#define STAFF_MENU_OPTION_SIZE 6
+const char* STAFF_MENU_OPTIONS[STAFF_MENU_OPTION_SIZE] = { "View Account Information", "Edit Account Information", "Change Password", "Train Scheduling", "Manage Accounts", "Generate Staff Report" };
 #define STAFF_EDIT_OPTIONS_SIZE 5
 const char* STAFF_EDIT_OPTIONS[STAFF_EDIT_OPTIONS_SIZE] = { "IC", "Name", "Gender", "Phone Number", "Email" };
 #define STAFF_EDIT_OPTIONS_ADMIN_SIZE 8
@@ -248,31 +248,34 @@ int viewStaffInfo() {
 	return(0);
 }
 
-int changeStaffPassword(const char* staffID) {
-	Staff staffToChange;
-	if (readStaffInfoFromFile(staffID, &staffToChange)) return(1); // unreadable file
-
+int changeStaffPassword(Staff* staffToChange) {
+	system("cls");
+	printf("Changing password for staff account [%s]\n", staffToChange->staffID);
 	char passRecovery[7] = "";
 	do {
-		printf("Enter recovery PIN\t> ");
+		printf("\tEnter recovery PIN\t> ");
 		rewind(stdin);
 	} while (scanf("%6[^\n]", passRecovery) != 1);
 
 	// Verify recovery PIN
-	if (strcmp(passRecovery, staffToChange.staffRecovery) != 0) {
+	if (strcmp(passRecovery, staffToChange->staffRecovery) != 0) {
 		printf("Invalid recovery PIN.\n");
+		printf("\nPress enter to continue.");
+		rewind(stdin);
+		if (getc(stdin) == 0); //?????
 		return(0);
 	}
 
 	char newPass[41] = "";
 	do {
-		printf("Enter new password\t> ");
+		printf("\tEnter new password\t> ");
 		rewind(stdin);
 	} while (scanf("%40[^\n]", newPass) != 1);
 
 	char choice;
+	printf("\nConfirm password change?\n");
 	do {
-		printf("Confirm password change? > ");
+		printf("\t(Y/N)\t> ");
 		rewind(stdin);
 		if (scanf("%c", &choice) != 1) continue;
 		choice = toupper(choice);
@@ -280,12 +283,23 @@ int changeStaffPassword(const char* staffID) {
 
 	if (choice == 'N') {
 		printf("Password change cancelled.\n");
+		printf("\nPress enter to continue.");
+		rewind(stdin);
+		if (getc(stdin) == 0); //?????
 		return(0);
 	}
 
-	strcpy(staffToChange.staffPassword, newPass);
-	writeStaffInfoToFile(&staffToChange, true);
-	printf("Password changed.\n");
+	strcpy(staffToChange->staffPassword, newPass);
+	if (writeStaffInfoToFile(staffToChange, true) == 1) {
+		printf("Failed to change password..\n");
+	}
+	else {
+		printf("Password successfully changed.\n");
+	}
+
+	printf("\nPress enter to continue.");
+	rewind(stdin);
+	if (getc(stdin) == 0); //?????
 
 	return(0);
 }
@@ -676,14 +690,26 @@ int staffMenu() {
 		case 2: // Edit Account Information
 			editStaffInformationSubmenu(&currentStaff, &currentStaff);
 			break;
-		case 3: // Train Scheduling Menu
+		case 3: // Change Password
+			changeStaffPassword(&currentStaff);
+			break;
+		case 4: // Train Scheduling Menu
 			trainSchedulingMenu(&currentStaff);
 			break;
-		case 4: // Manage Accounts (Admin only)
+		case 5: // Manage Accounts (Admin only)
 			manageAccountsSubmenu(&currentStaff);
 			break;
-		case 5: // Generate Staff Report (Admin only)
+		case 6: // Generate Staff Report (Admin only)
 		{
+			if (!currentStaff.isAdmin) {
+				system("cls");
+				printf("Insufficient permission.\n");
+				printf("\nPress enter to continue.");
+				rewind(stdin);
+				if (getc(stdin) == 0); //?????
+				break;
+			}
+
 			// reset globals
 			staffCountFM[0] = 0;
 			staffCountFM[1] = 0;
