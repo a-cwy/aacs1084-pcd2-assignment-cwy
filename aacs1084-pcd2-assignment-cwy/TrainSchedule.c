@@ -24,19 +24,21 @@ const char* EDITTR_MENU_OPTIONS[EDITTR_MENU_OPTIONS_SIZE] = { "Departure Date", 
 //Menu for report
 #define TSCHER_MENU_OPTION_SIZE 2
 const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" };
+//Menu for manage train
 #define AMANAGETR_MENU_OPTION_SIZE 3
 const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", "Edit Train", "Remove Train" };
+//Menu for Staff edit train
 #define SMANAGETR_MENU_OPTION_SIZE 2
 const char* SMANAGETR_MENU_OPTIONS[SMANAGETR_MENU_OPTION_SIZE] = { "Edit Train Departure/Arrival Station", "Edit Train Departure/Arrival Time" };
 
 
 //for view all train
 int trainCount;
-//for search by date timetable
+//for train report
 int totalAvailableSeats;
 int totalSeatsBooked;
 float occupancyRate;
-
+//for train timetable
 int day, month, year;
 
 //Functions
@@ -1098,7 +1100,7 @@ int generateOccupancyRate() {
 	printf("\n");
 	printf("Total Booked Seats For All Train\t> %d\n", totalSeatsBooked);
 	printf("\n");
-	printf("Occupancy Rate for All Train\t> %.2f\n", occupancyRate);
+	printf("Occupancy Rate for All Train\t> %.2f%%\n", occupancyRate);
 	printf("\n");
 	printf("==================================================\n");
 
@@ -1114,7 +1116,7 @@ int generateSeatsAvailability(const char* filepath, Train* trainToReport) {
 	Train currentTrain;
 	int seatsAvailable = availableSeats(filepath);
 	int seatsBooked = bookedSeats(filepath);
-	float occupancyRate = (seatsBooked / seatsAvailable)*100.00;
+	float occupancyRate = ((float)seatsBooked / (float)seatsAvailable)*100.00;
 	system("cls");
 	printf("%s Seats Availability Report:\n", trainToReport->trainID);
 	printf("==================================================\n");
@@ -1122,7 +1124,7 @@ int generateSeatsAvailability(const char* filepath, Train* trainToReport) {
 	printf("\n");
 	printf("Total Booked Seats For %s\t> %d\n", trainToReport->trainID, seatsBooked);
 	printf("\n");
-	printf("Occupancy Rate for %s\t> %.2f\n", trainToReport->trainID, occupancyRate);
+	printf("Occupancy Rate for %s\t> %.2f%%\n", trainToReport->trainID, occupancyRate);
 	printf("\n");
 	printf("==================================================\n");
 
@@ -1154,7 +1156,7 @@ int trainReports() {
 			totalAvailableSeats = 0;
 			totalSeatsBooked = 0;
 			getFilesFromDirectory("data\\text\\trainSchedule", *analyzeTrainFile);
-			occupancyRate = (totalSeatsBooked / totalAvailableSeats) * 100;
+			occupancyRate = ((float)totalSeatsBooked / (float)totalAvailableSeats) * 100;
 
 			generateOccupancyRate();
 			break;
