@@ -398,8 +398,9 @@ bool selectBankCard(MemberDetails* member) {
 		}
 		else {
 			printf("Failed to add card.\n");
-			return(true);
+			return(false);
 		}
+		return(true);
 		break;
 	default:
 		printf("Invalid option.\n");
