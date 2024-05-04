@@ -52,7 +52,7 @@ void generateBookingReport() {
 	printf("\n");
 	printf("Total refund count\t> %d\n", refundCount);
 	printf("\n");
-	printf("Total earning\t> %d\n", totalEarning);
+	printf("Total earning\t> RM%d\n", totalEarning);
 	printf("\n");
 
 	return 0;
