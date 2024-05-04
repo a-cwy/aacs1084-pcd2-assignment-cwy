@@ -128,7 +128,7 @@ bool validateGender(const char* gender) {
 }
 
 bool validatePhoneNumber(const char* phoneNumber) {
-	if (strlen(phoneNumber) < 11) return(false);
+	if (strlen(phoneNumber) < 11 || strlen(phoneNumber) > 12) return(false);
 
 	for (int i = 0; i < strlen(phoneNumber) - 1; i++)
 	{

@@ -542,6 +542,7 @@ int viewMemberWallet(const MemberDetails* member) {
 }
 
 int bookingHistory(const MemberDetails* member) {
+	system("cls");
 	Booking booking;
 
 	FILE* bookingFP;
