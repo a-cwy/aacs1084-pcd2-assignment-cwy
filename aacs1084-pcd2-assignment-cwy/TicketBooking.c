@@ -1143,6 +1143,7 @@ void displaySelectedTrainInfo(const Train* train) {
 		printf("\n");
 	}
 
+	printf("\n");
 	printf("('O' means seat is available, 'X' means seat is sold out)\n");
 	printf("\n\n");
 
