@@ -1116,6 +1116,8 @@ void displaySelectedTrainInfo(const Train* train) {
 
 	//display train information
 	printf("\n\n");
+	printf("Train Details\n");
+	printf("=============\n");
 	printf("Train ID: %s\n", train->trainID);
 	printf("Departure Date: %02d/%02d/%04d\n", train->departureDate.day,
 		train->departureDate.month,
@@ -1125,28 +1127,23 @@ void displaySelectedTrainInfo(const Train* train) {
 	printf("Departure Time: %02d:%02d\n", train->departureTime.hours, train->departureTime.minutes);
 	printf("Arrival Time: %02d:%02d\n\n", train->arrivalTime.hours, train->arrivalTime.minutes);
 
+	printf("%-5s%-15s%-15s%-15s%-15s%-15s%-15s\n", "","CoachA","CoachB","CoachC","CoachD","CoachE","CoachF");
+	printf("%-5s%-15s%-15s%-15s%-15s%-15s%-15s\n", "","======","======","======","======","======","======");
 	//display seat avaialbility
-	for (coachIndex = 0; coachIndex < 6; coachIndex++) {
+	for (int row = 0; row < 20; row++) {
+		printf("|  "); 
 
-		//display coach alphabet
-		printf("Coach %c:\n", 'A' + coachIndex);
-
-		//display col number
-		printf("  1 2 3 4\n");
-		for (row = 0; row < 20; row++) {
-
-			//display row number
-			printf("%2d", row + 1);
-
-			for (col = 0; col < 4; col++) {
-
-				//if seat not avaiable print 'X' if avaialble print 'O'
-				printf(" %c", train->coach[coachIndex].seats[row][col] ? 'X' : 'O');
+		for (int coachIndex = 0; coachIndex < 6; coachIndex++) {
+			for (int col = 0; col < 4; col++) {
+				char seatStatus = train->coach[coachIndex].seats[row][col] ? 'X' : 'O';
+				printf("%c  ", seatStatus);  // Space for clarity
 			}
-			printf("\n");
+			printf("|  "); // Coach separator
 		}
+		printf("\n");
 	}
 
+	printf("('O' means seat is available, 'X' means seat is sold out)\n");
 	printf("\n\n");
 
 	return;
