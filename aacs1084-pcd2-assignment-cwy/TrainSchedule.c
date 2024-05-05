@@ -305,7 +305,7 @@ int adminEditTrain() {
 	// trainID
 	do {
 		system("cls");
-		printf("Train ID to edit\n\t> ");
+		printf("\tTrain ID to edit\t\t> ");
 		rewind(stdin);
 		if (scanf("%5[^\n]", &trainToEdit.trainID) != 1);
 		trainToEdit.trainID[0] = toupper(trainToEdit.trainID[0]);
