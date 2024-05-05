@@ -46,3 +46,5 @@ typedef struct Train {
 */
 
 int trainSchedulingMenu(const Staff* currentStaff);
+int analyzeBookingFiles(const char* filepath);
+void generateBookingReport();

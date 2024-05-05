@@ -22,8 +22,8 @@ const char* STSCHE_MENU_OPTIONS[STSCHE_MENU_OPTION_SIZE] = { "Manage Train", "Vi
 #define EDITTR_MENU_OPTIONS_SIZE 5
 const char* EDITTR_MENU_OPTIONS[EDITTR_MENU_OPTIONS_SIZE] = { "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "Arrival Time" };
 //Menu for report
-#define TSCHER_MENU_OPTION_SIZE 2
-const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" };
+#define TSCHER_MENU_OPTION_SIZE 3
+const char* TSCHER_MENU_OPTIONS[TSCHER_MENU_OPTION_SIZE] = { "Occupancy Rate Report", "Seat Availability Report" , "Ticket Booking Report"};
 //Menu for Admin manage train
 #define AMANAGETR_MENU_OPTION_SIZE 3
 const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", "Edit Train", "Remove Train" };
@@ -47,6 +47,10 @@ int totalSeatsBooked;
 float occupancyRate;
 //for train timetable
 int day, month, year;
+
+//for ticket booking report
+int salesCount, refundCount;
+int totalEarning;
 
 //Functions
 
@@ -1180,6 +1184,18 @@ int trainReports() {
 				if (validateTrainID(trainToReport.trainID)) break;
 			} while (printf("Train ID does not exist, please try again.\n"));
 			generateSeatsAvailability(filepath, &trainToReport);
+			break;
+		case 3:
+			salesCount = 0;
+			refundCount = 0;
+			totalEarning = 0;
+
+			getFilesFromDirectory("data\\text\\ticketBooking", *analyzeBookingFiles);
+			generateBookingReport();
+
+			printf("\nPress enter to go back.");
+			rewind(stdin);
+			if (getc(stdin) == 0);
 			break;
 
 

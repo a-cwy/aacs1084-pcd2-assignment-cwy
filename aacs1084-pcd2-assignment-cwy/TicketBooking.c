@@ -12,9 +12,9 @@
 
 #pragma warning(disable:4996)
 
-#define TICKET_MENU_OPTION_SIZE 7
+#define TICKET_MENU_OPTION_SIZE 6
 const char* TICKET_MENU_OPTIONS[TICKET_MENU_OPTION_SIZE] = { "Display All Train Schedule", "Book Ticket", 
-"View All Ticket", "Search Ticket" , "Change Seat for Ticket", "Refund Ticket", "Booking Report"};
+"View All Ticket", "Search Ticket" , "Change Seat for Ticket", "Refund Ticket"};
 
 int salesCount, refundCount;
 int totalEarning;
@@ -1203,6 +1203,10 @@ int ticketBookingMenu(MemberDetails* member) {
 	int select;
 	do {
 		system("cls");
+		printf("==================================================\n");
+		printf("=              Ticket Booking Menu               =\n");
+		printf("==================================================\n");
+		printf("\n");
 		select = displayMenu(TICKET_MENU_OPTIONS, TICKET_MENU_OPTION_SIZE);
 
         switch (select) {
@@ -1227,18 +1231,6 @@ int ticketBookingMenu(MemberDetails* member) {
         case 6:
             refundTicket(member);
             break;
-		case 7:
-			salesCount = 0;
-			refundCount = 0;
-			totalEarning = 0;
-
-			getFilesFromDirectory("data\\text\\ticketBooking", *analyzeBookingFiles);
-			generateBookingReport();
-
-			printf("\nPress enter to go back.");
-			rewind(stdin);
-			if (getc(stdin) == 0); 
-			break;
         default:
             printf("SORRY INVALID CHOICE! \n");
             printf("PLEASE CHOOSE FROM 1-4 \n\n\n");
