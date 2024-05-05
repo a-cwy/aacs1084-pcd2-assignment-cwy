@@ -32,7 +32,7 @@ const char* AMANAGETR_MENU_OPTIONS[AMANAGETR_MENU_OPTION_SIZE] = { "Add Train", 
 const char* SMANAGETR_MENU_OPTIONS[SMANAGETR_MENU_OPTION_SIZE] = { "Edit Train Departure/Arrival Station", "Edit Train Departure/Arrival Time" };
 //Submenu for staff edit train
 #define SMStation_MANAGETR_MENU_OPTION_SIZE 2
-const char* SMStation_MANAGETR_MENU_OPTION[SMStation_MANAGETR_MENU_OPTION_SIZE] = { "Departure Station", "Arrival Arrival" };
+const char* SMStation_MANAGETR_MENU_OPTION[SMStation_MANAGETR_MENU_OPTION_SIZE] = { "Departure Station", "Arrival Station" };
 //Submenu for staff edit train
 #define SMTime_MANAGETR_MENU_OPTION_SIZE 2
 const char* SMTime_MANAGETR_MENU_OPTION[SMTime_MANAGETR_MENU_OPTION_SIZE] = { "Departure Time", "Arrival Time" };
@@ -516,20 +516,21 @@ int staffEditTrainDA() {
 		&trainToEdit.departureTime.minutes,
 		&trainToEdit.arrivalTime.hours,
 		&trainToEdit.arrivalTime.minutes);
-	// Display Train Information
-	printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
-	printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
-	printf("Departure Station\t> %s\n", trainToEdit.departureStation);
-	printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
-	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
-	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
+	
 
 	//close for reading
 	fclose(ePtr);
 
 	//loop for edit desired element
 	do {
-
+		system("cls");
+		// Display Train Information
+		printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
+		printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
+		printf("Departure Station\t> %s\n", trainToEdit.departureStation);
+		printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
+		printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
+		printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 		choice = displayMenu(SMStation_MANAGETR_MENU_OPTION, SMStation_MANAGETR_MENU_OPTION_SIZE);
 		switch (choice) {
 		case 0:
@@ -668,20 +669,20 @@ int staffEditTrainDATime() {
 		&trainToEdit.arrivalTime.hours,
 		&trainToEdit.arrivalTime.minutes);
 
-	// Display Train Information
-	printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
-	printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
-	printf("Departure Station\t> %s\n", trainToEdit.departureStation);
-	printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
-	printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
-	printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 	//close for reading
 	fclose(ePtr);
 
 
 	//loop for edit desired element
 	do {
-
+		system("cls");
+		// Display Train Information
+		printf("\nTrain ID\t\t> %s\n", trainToEdit.trainID);
+		printf("Departure Date\t\t> %02d/%02d/%04d\n", trainToEdit.departureDate.day, trainToEdit.departureDate.month, trainToEdit.departureDate.year);
+		printf("Departure Station\t> %s\n", trainToEdit.departureStation);
+		printf("Arrival Station\t\t> %s\n", trainToEdit.arrivalStation);
+		printf("Departure Time\t\t> %02d:%02d\n", trainToEdit.departureTime.hours, trainToEdit.departureTime.minutes);
+		printf("Arrival Time\t\t> %02d:%02d\n", trainToEdit.arrivalTime.hours, trainToEdit.arrivalTime.minutes);
 		choice = displayMenu(SMTime_MANAGETR_MENU_OPTION, SMTime_MANAGETR_MENU_OPTION_SIZE);
 		switch (choice) {
 		case 0:
@@ -696,7 +697,7 @@ int staffEditTrainDATime() {
 			break;
 		case 2:
 			do {
-				printf("\tArrival time (HH:MM)\t> ");
+				printf("\tNew Arrival time (HH:MM)\t> ");
 				rewind(stdin);
 				if (scanf("%02d:%02d", &trainToEdit.arrivalTime.hours, &trainToEdit.arrivalTime.minutes) != 2) continue;
 			} while (!validateTime(&trainToEdit.arrivalTime.hours, &trainToEdit.arrivalTime.minutes));
@@ -709,7 +710,7 @@ int staffEditTrainDATime() {
 		}
 
 		do {
-			printf("\CONTINUE to edit file?(Y/N)\t> ");
+			printf("\nCONTINUE to edit file?(Y/N)\t> ");
 			rewind(stdin);
 			scanf("%c", &keepEdit);
 		} while (!validateChoice(keepEdit));
@@ -794,6 +795,9 @@ int searchTrain() {
 		system("cls");
 		// trainID
 		do {
+			//Clear Train ID variable
+			strcpy(trainToSearch.trainID, "");
+			
 			printf("\tTrain ID\t\t> ");
 			rewind(stdin);
 			if (scanf("%5[^\n]", &trainToSearch.trainID) != 1);
